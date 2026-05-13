@@ -1,0 +1,51 @@
+extends: configs/model_qwen25_coder_7b_l20_mfu.yaml
+
+experiment:
+  name: rich_context_spider_qwen25_coder_7b_l20_mfu_v2
+  architecture: rich_context
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.03
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+data:
+  train_file: data/processed/spider_train_no_value_hints.jsonl
+  eval_file: data/processed/spider_dev.jsonl
+
+training:
+  output_dir: outputs/rich_context_spider_qwen25_coder_7b_l20_mfu_v2
+  max_seq_length: 4096
+  sequence_packing: true
+  drop_remainder: false
+  eval_sequence_packing: false
+  num_train_epochs: 3
+  per_device_train_batch_size: 5
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 6
+  learning_rate: 0.0001
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  optim: paged_adamw_8bit
+  logging_steps: 5
+  eval_steps: 1000
+  save_steps: 1000
+  save_total_limit: 2
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+  bf16: true
+  tf32: true
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  dataloader_persistent_workers: true
+  torch_compile: false
