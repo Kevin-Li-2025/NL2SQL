@@ -3,31 +3,33 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Spider Dev EX](https://img.shields.io/badge/Spider_dev_EX-80.37%25-brightgreen)
-![L20 Dense MFU](https://img.shields.io/badge/L20_dense_MFU-66.34%25-brightgreen)
+![L20 Dense MFU](https://img.shields.io/badge/L20_dense_MFU-73.22%25-brightgreen)
 
 Reproducible natural-language-to-SQL fine-tuning and multi-path inference benchmarks on
 public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU.
 
 ## Result Snapshot
 
-Latest validated remote run snapshot: `2026-05-13 19:43 +08:00`.
+Latest validated remote run snapshot: `2026-05-13 21:48 +08:00`.
 
 | Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
 | --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 48.94% | 75.73% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 48.65% | 76.40% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 50.48% | 78.72% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
+| BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 1.20% | 37.40% |
 
 The Spider numbers above are local normalized exact match and SQLite execution accuracy,
 not yet claimed as official Spider leaderboard numbers. Official Spider evaluator export
 files are generated under `spider_official/`; checked-in official evaluator stdout should
 be added before making paper-style comparisons.
 
-BIRD Mini-Dev is intentionally shown as a weak out-of-domain direct baseline: the adapter
-was trained on Spider and the direct architecture does not use BIRD evidence, value
-retrieval, or complex schema/value grounding. Rich-context and MCR BIRD Mini-Dev runs are
-the next validation target.
+BIRD Mini-Dev is intentionally shown as out-of-domain transfer from Spider-trained
+adapters. The `schema_aware` run improves BIRD Mini-Dev execution accuracy from 21.60% to
+37.40%, but rich-context and MCR BIRD Mini-Dev runs are still needed before claiming a
+strong BIRD result.
 
 The first experiment keeps the base model fixed:
 
@@ -134,6 +136,7 @@ Completed L20 training runs:
 | Experiment | Output / Checkpoint | Tail tokens/sec | Tail dense MFU | MFU target |
 | --- | --- | ---: | ---: | ---: |
 | `direct_spider_qwen25_coder_7b_l20_mfu` | `outputs/direct_spider_qwen25_coder_7b_l20_mfu` | 1725.46 | 0.6598 | met |
+| `schema_aware_spider_qwen25_coder_7b_l20_mfu` | `outputs/schema_aware_spider_qwen25_coder_7b_l20_mfu` | 1914.90 | 0.7322 | met |
 | `rich_context_spider_qwen25_coder_7b_l20_mfu` | `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/checkpoint-96` | 1734.91 | 0.6634 | met |
 
 Spider dev results:
@@ -141,6 +144,7 @@ Spider dev results:
 | Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `direct` single-path | 48.94% | 75.73% | 94.68% | 5.32% | 4.74% |
+| `schema_aware` single-path | 48.65% | 76.40% | 95.26% | 4.74% | 3.77% |
 | `rich_context` single-path | 50.48% | 78.72% | 95.16% | 4.84% | 3.87% |
 | `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
 
@@ -153,19 +157,22 @@ BIRD Mini-Dev results:
 | Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `direct` single-path | 0.80% | 21.60% | 80.00% | 20.00% | 12.40% |
+| `schema_aware` single-path | 1.20% | 37.40% | 85.00% | 15.00% | 8.40% |
 
-This is the first BIRD Mini-Dev baseline. The harder schema-aware and MCR BIRD runs are
-queued on the L20 after the Spider schema-aware pass.
+The schema-aware BIRD run improves execution accuracy by `+15.80` points over direct,
+with fewer execution errors and fewer schema hallucinations. Rich-context and MCR BIRD
+runs are still in the remote queue.
 
 Comparison boundaries:
 
 - These are same-base-model comparisons inside this repo, not fair comparisons against
   DIN-SQL, DAIL-SQL, C3, MAC-SQL, CHESS, CHASE-SQL, or other full systems.
-- Spider rows use the prepared full database schema. Rich-context rows additionally use
-  M-Schema text, matched values, evidence fields when present, and question-linked schema
-  hints.
-- `direct` and `rich_context` use one generation per example. `MCR-SQL-L20` currently
-  uses 8 candidate generations per example in `configs/pipeline_mcr_l20.yaml`.
+- Spider rows use the prepared full database schema. Schema-aware rows add linked schema,
+  foreign-key expansion, and evidence. Rich-context rows additionally use M-Schema text,
+  matched values, evidence fields when present, and question-linked schema hints.
+- `direct`, `schema_aware`, and `rich_context` use one generation per example.
+  `MCR-SQL-L20` currently uses 8 candidate generations per example in
+  `configs/pipeline_mcr_l20.yaml`.
 - Official Spider evaluator export files are saved, but the README reports this repo's
   local normalized EM and SQLite execution metrics until official evaluator logs are
   checked in.
@@ -178,6 +185,12 @@ Artifacts already saved in the repo snapshot:
 - `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/predictions.jsonl`
 - `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/summary.json`
 - `outputs/direct_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
+- `evals/after_train/schema_aware_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json`
+- `evals/after_train/schema_aware_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
+- `evals/after_train/schema_aware_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/results.json`
+- `evals/after_train/schema_aware_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/predictions.jsonl`
+- `evals/after_train/schema_aware_spider_qwen25_coder_7b_l20_mfu/summary.json`
+- `outputs/schema_aware_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/results.json`
@@ -343,11 +356,11 @@ The first meaningful result should be a table like this:
 | Base model | Architecture | Benchmark | Normalized EM | Execution Acc |
 | --- | --- | --- | ---: | ---: |
 | Qwen2.5-Coder-7B-Instruct | direct | Spider dev | 48.94% | 75.73% |
-| Qwen2.5-Coder-7B-Instruct | schema_aware | Spider dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | schema_aware | Spider dev | 48.65% | 76.40% |
 | Qwen2.5-Coder-7B-Instruct | rich_context | Spider dev | 50.48% | 78.72% |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
-| Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | 1.20% | 37.40% |
 | Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | TBD | TBD |
 
@@ -357,12 +370,13 @@ The first meaningful result should be a table like this:
   improves execution accuracy from 78.72% to 80.37%, reduces execution errors from 50 to
   20, and reduces schema hallucinations from 40 to 18. The cost is 8 candidate generations
   per example rather than 1.
-- **Hardware Optimization**: The completed L20 runs maintain roughly 66% dense MFU in
+- **Hardware Optimization**: The completed L20 runs maintain up to 73.22% dense MFU in
   this repo's training setup, demonstrating strong single-L20 training efficiency in this
   experimental setup.
-- **Current Gap**: BIRD Mini-Dev direct transfer is weak at 21.60% execution accuracy.
-  This should not be read as a strong BIRD result until rich-context retrieval, value
-  grounding, and MCR selection are evaluated.
+- **Current Gap**: BIRD Mini-Dev direct transfer is weak at 21.60% execution accuracy,
+  and schema-aware transfer improves it to 37.40%. This should still not be read as a
+  strong BIRD result until rich-context retrieval, value grounding, and MCR selection are
+  evaluated.
 
 See [docs/ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md),
 [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md), and
