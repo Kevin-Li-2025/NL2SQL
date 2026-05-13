@@ -1,0 +1,72 @@
+{
+  "experiment": "rich_context_spider_qwen25_coder_7b_l20_mfu",
+  "architecture": "rich_context",
+  "adapter": "outputs/rich_context_spider_qwen25_coder_7b_l20_mfu",
+  "suite": "configs/benchmarks_after_train.yaml",
+  "benchmarks": {
+    "spider_dev": {
+      "status": "completed",
+      "input": "data/processed/spider_dev.jsonl",
+      "predictions": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl",
+      "results": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json",
+      "metrics": {
+        "total": 1034,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.504835589941973,
+        "normalized_exact_count": 522,
+        "execution_accuracy": 0.7872340425531915,
+        "execution_evaluated": 1034,
+        "executable_rate": 0.9516441005802708,
+        "execution_errors": 50,
+        "execution_error_rate": 0.048355899419729204,
+        "schema_hallucination_rate": 0.03868471953578337,
+        "schema_hallucination_count": 40,
+        "missing_predictions": 0
+      },
+      "spider_official": {
+        "gold": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/spider_official/gold.txt",
+        "pred": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/spider_official/pred.txt"
+      }
+    },
+    "spider_dev_mcr": {
+      "status": "completed",
+      "input": "data/processed/spider_dev.jsonl",
+      "predictions": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/predictions.jsonl",
+      "results": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/results.json",
+      "metrics": {
+        "total": 1034,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.5106382978723404,
+        "normalized_exact_count": 528,
+        "execution_accuracy": 0.8036750483558994,
+        "execution_evaluated": 1034,
+        "executable_rate": 0.9806576402321083,
+        "execution_errors": 20,
+        "execution_error_rate": 0.019342359767891684,
+        "schema_hallucination_rate": 0.017408123791102514,
+        "schema_hallucination_count": 18,
+        "missing_predictions": 0
+      },
+      "spider_official": {
+        "gold": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/spider_official/gold.txt",
+        "pred": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/spider_official/pred.txt"
+      }
+    },
+    "bird_mini_dev": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/bird_mini_dev.jsonl"
+    },
+    "bird_dev": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/bird_dev.jsonl"
+    },
+    "bird_dev_mcr": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/bird_dev.jsonl"
+    },
+    "livesqlbench_base_lite": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/livesqlbench_base_lite.jsonl"
+    }
+  }
+}

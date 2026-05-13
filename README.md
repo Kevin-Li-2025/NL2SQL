@@ -91,7 +91,7 @@ Official references:
 
 ## Current Results
 
-Latest validated remote run snapshot: `2026-05-13 17:31 +08:00`.
+Latest validated remote run snapshot: `2026-05-13 17:56 +08:00`.
 
 Training run:
 
@@ -101,25 +101,25 @@ Training run:
 - Tail dense MFU: `0.6634`
 - MFU target: `0.60` -> met
 
-Spider dev (`rich_context`, single-path):
+Spider dev results:
 
-| Metric | Value |
-| --- | ---: |
-| Normalized exact match | 50.48% |
-| Execution accuracy | 78.72% |
-| Executable rate | 95.16% |
-| Execution error rate | 4.84% |
-| Schema hallucination rate | 3.87% |
+| Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `rich_context` single-path | 50.48% | 78.72% | 95.16% | 4.84% | 3.87% |
+| `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
+
+The multi-path selector improved execution accuracy by `+1.65` points, reduced execution
+errors from `50` to `20`, and reduced schema hallucinations from `40` to `18` on the
+full 1,034-example Spider dev split.
 
 Artifacts already saved in the repo snapshot:
 
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
+- `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/results.json`
+- `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/predictions.jsonl`
+- `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/summary.json`
 - `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
-
-`MCR-SQL-L20` Spider dev evaluation is still running on the remote L20 machine. At the
-same `2026-05-13 17:31 +08:00` snapshot, the multi-path benchmark had reached
-`848 / 1034` examples and had not produced a final `results.json` yet.
 
 ## Setup
 
@@ -263,6 +263,7 @@ The first meaningful result should be a table like this:
 | Qwen2.5-Coder-7B-Instruct | direct | Spider dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | Spider dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | rich_context | Spider dev | 50.48% | 78.72% |
+| Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | TBD | TBD |
