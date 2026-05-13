@@ -11,7 +11,7 @@ public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU
 
 ## Result Snapshot
 
-Latest validated result snapshot: `2026-05-14 04:00 +08:00`.
+Latest validated result snapshot: `2026-05-14 05:30 +08:00`.
 
 | Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
 | --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
@@ -21,6 +21,7 @@ Latest validated result snapshot: `2026-05-14 04:00 +08:00`.
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `VAV-SQL-L20` | value-aware multi-prompt voting | 30 | local SQLite evaluator | 52.03% | 82.11% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `VAV-SQL-L20` cost curve | retrospective balanced subset from n=30 candidates | 4 | local SQLite evaluator | 50.39% | 82.59% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `EGS-SQL-L20` | execution-guided schema rerank | 32 | local SQLite evaluator | 51.06% | 81.33% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 1.20% | 37.40% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 0.60% | 37.20% |
@@ -29,8 +30,10 @@ Latest validated result snapshot: `2026-05-14 04:00 +08:00`.
 The Spider numbers above are local normalized exact match and SQLite execution accuracy,
 not official leaderboard numbers. For the current best retrospective `VAV-SQL-L20` n=4
 candidate subset, the upstream Spider evaluator stdout is checked in and reports `82.20%`
-execution accuracy and `78.10%` official exact match. The official exact match is a parsed
-Spider metric and is not directly comparable to this repo's strict normalized-string EM.
+execution accuracy and `78.10%` official exact match. The n=32 EGS run is also checked in
+as a selector ablation: it reaches `82.00%` official execution accuracy, but does not beat
+the VAV cost curve. The official exact match is a parsed Spider metric and is not directly
+comparable to this repo's strict normalized-string EM.
 
 BIRD Mini-Dev is intentionally shown as out-of-domain transfer from Spider-trained
 adapters. The best current BIRD Mini-Dev run is `MCR-SQL-L20` at 39.20% execution
@@ -114,15 +117,16 @@ See [docs/SOTA_ARCHITECTURE.md](docs/SOTA_ARCHITECTURE.md).
 
 ### `EGS-SQL-L20`
 
-The next execution-accuracy run adds an `execution_first` prompt and an
-execution-guided schema reranker:
+The execution-accuracy ablation adds an `execution_first` prompt and an execution-guided
+schema reranker:
 
 ```text
 rich_context + execution_first + query_plan + skeleton -> safe execution -> schema/value/operator rerank
 ```
 
 The first EGS benchmark is `spider_dev_egs_n32`: 32 candidates per example, same
-rich-context LoRA adapter, same Spider dev split.
+rich-context LoRA adapter, same Spider dev split. It reduces schema hallucination more
+than VAV, but trails the best VAV execution accuracy.
 
 ### `Candidate-Repair-SQL-L20`
 
@@ -175,6 +179,7 @@ Spider dev results:
 | `rich_context` single-path | 50.48% | 78.72% | 95.16% | 4.84% | 3.87% |
 | `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
 | `VAV-SQL-L20` n=30 voting | 52.03% | 82.11% | 99.61% | 0.39% | 0.58% |
+| `EGS-SQL-L20` n=32 rerank | 51.06% | 81.33% | 99.61% | 0.39% | 0.19% |
 
 The current best full-generation Spider run is `VAV-SQL-L20` n=30, which improves
 execution accuracy by `+3.39` points over rich-context single-path and `+1.74` points
@@ -189,12 +194,20 @@ Official Spider evaluator for `VAV-SQL-L20`:
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | n=30 full VAV | 78.50% | 81.90% | 92.30% | 86.50% | 70.70% | 65.70% |
 | n=4 retrospective balanced subset | 78.10% | 82.20% | 91.50% | 86.30% | 74.10% | 65.70% |
+| n=32 EGS rerank | 78.40% | 82.00% | 93.50% | 86.10% | 71.30% | 65.10% |
 
 The n=4 result is a retrospective re-selection from the saved n=30 candidate pool, not a
 fresh n=4 generation run. It shows that most of the gain comes from candidate diversity
 and selection quality rather than raw candidate count. The official stdout files are
 saved under
 `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/*/spider_official/`.
+The EGS official stdout is saved under
+`evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_egs_n32/spider_official/`.
+
+EGS is useful as a negative selector ablation. It cuts schema hallucinations to `2` on
+Spider dev, but the extra execution-guided reranking does not improve execution accuracy
+over the simpler VAV selection. This supports the next direction: learned candidate
+selection or repair rather than adding more hand-written rerank terms.
 
 VAV candidate-budget curve:
 

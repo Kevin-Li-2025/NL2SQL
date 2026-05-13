@@ -15,7 +15,7 @@ narrower and stronger:
 | Spider 1.0 | Strong enough to show that the pipeline works. Best checked-in official dev execution accuracy is 82.20% from a retrospective n=4 VAV subset. |
 | BIRD Mini-Dev | Not strong yet. Best current execution accuracy is 39.20%, which is useful transfer evidence but not a strong BIRD system. |
 | Hardware story | Strong. The project keeps the comparison to one L20 and records MFU/cost instead of hiding compute. |
-| Research story | Good framework and ablation base; not enough for a SOTA paper until BIRD and selector/repair ablations improve. |
+| Research story | Good framework and ablation base; not enough for a SOTA paper until BIRD and learned selector/repair ablations improve. |
 
 ## Claim Boundary
 
@@ -43,6 +43,8 @@ clean:
 - direct, schema-aware, rich-context, MCR, and VAV comparisons;
 - local SQLite execution and upstream Spider evaluator stdout;
 - candidate-budget curve showing that n=4/n=8 can match n=30;
+- a negative EGS n=32 selector ablation showing that more execution-guided hand rules
+  reduce hallucination but do not automatically improve execution accuracy;
 - cost artifacts and training MFU logs.
 
 That makes Spider the benchmark for proving that the architecture and evaluation harness
@@ -64,12 +66,10 @@ Mini-Dev execution accuracy without training on Mini-Dev labels.
 
 ## Next Experiments
 
-1. Run the active EGS Spider job and record whether execution-guided reranking beats the
-   VAV cost curve.
-2. Finish Candidate-Repair-SQL-L20 and compare Spider/BIRD against VAV and MCR.
-3. Run BIRD Mini-Dev VAV n=12 and EGS n=16 after repair to test value-aware selection on
+1. Finish Candidate-Repair-SQL-L20 and compare Spider/BIRD against VAV and MCR.
+2. Run BIRD Mini-Dev VAV n=12 and EGS n=16 after repair to test value-aware selection on
    the harder transfer set.
-4. Train a learned selector from Spider train candidate pools so fewer candidates can
+3. Train a learned selector from Spider train candidate pools so fewer candidates can
    match or beat the retrospective n=4/n=8 curve.
-5. Add BIRD-specific value grounding ablations: no value hints, lexical hints, execution
+4. Add BIRD-specific value grounding ablations: no value hints, lexical hints, execution
    sampled values, and evidence-aware hints.

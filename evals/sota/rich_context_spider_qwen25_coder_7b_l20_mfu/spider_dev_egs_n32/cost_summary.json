@@ -1,0 +1,32 @@
+{
+  "benchmark": "Spider dev",
+  "run": "EGS-SQL-L20 n=32",
+  "model": "Qwen2.5-Coder-7B-Instruct + rich-context Spider LoRA",
+  "adapter": "outputs/rich_context_spider_qwen25_coder_7b_l20_mfu",
+  "input_examples": 1034,
+  "architectures": [
+    "rich_context",
+    "execution_first",
+    "query_plan",
+    "skeleton"
+  ],
+  "samples_per_architecture": 8,
+  "candidates_per_example": 32,
+  "total_candidates": 33088,
+  "selection_strategy": "execution_guided_rerank",
+  "wall_clock_seconds": 10456,
+  "wall_clock_hms": "2:54:16",
+  "single_l20_gpu_hours": 2.9044,
+  "seconds_per_example": 10.11,
+  "examples_per_minute": 5.93,
+  "candidates_per_second": 3.16,
+  "local_sqlite_execution_accuracy": 0.8133462282398453,
+  "official_spider_execution_accuracy": 0.82,
+  "official_spider_exact_match": 0.784,
+  "notes": [
+    "Wall-clock timing is from the tqdm completion line in logs/remote_l20_egs_spider_20260513_202119.log.",
+    "The timing includes model generation, SQLite candidate execution annotation, execution-guided selection, and prediction JSONL writing.",
+    "The timing excludes earlier queue waiting time before the EGS command started.",
+    "Continuous power logging was not captured as an integrated energy trace, so this file reports GPU-hours rather than kWh."
+  ]
+}

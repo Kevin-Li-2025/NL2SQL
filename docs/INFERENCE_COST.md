@@ -82,3 +82,44 @@ checked in. The result is also a warning against brute-force scaling: after the 
 has diverse candidates, adding more samples can add plausible but wrong SQL and slightly
 hurt execution accuracy. The next cost-aware direction is a learned selector that reaches
 the n=4/n=8 band consistently without depending on a large candidate pool.
+
+## EGS-SQL-L20 n=32
+
+Run:
+
+- Benchmark: Spider dev, 1,034 examples.
+- Model: `Qwen2.5-Coder-7B-Instruct` with the rich-context Spider LoRA adapter.
+- Prompt architectures: `rich_context`, `execution_first`, `query_plan`, `skeleton`.
+- Sampling: 8 samples per architecture, 32 candidates per example.
+- Selector: `execution_guided_rerank`.
+- Output: `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_egs_n32`.
+- Machine-readable cost summary:
+  `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_egs_n32/cost_summary.json`.
+
+Measured cost from the remote L20 run:
+
+| Metric | Value |
+| --- | ---: |
+| Examples | 1,034 |
+| Candidates per example | 32 |
+| Total candidates | 33,088 |
+| Wall-clock runtime | 2:54:16 |
+| Single-L20 GPU-hours | 2.90 |
+| Seconds per example | 10.11 |
+| Examples per minute | 5.93 |
+| Candidates per second | 3.16 |
+
+Accuracy from the same run:
+
+| Evaluator | Metric | Value |
+| --- | --- | ---: |
+| Local SQLite evaluator | Execution accuracy | 81.33% |
+| Local SQLite evaluator | Normalized string EM | 51.06% |
+| Official Spider evaluator | Execution accuracy | 82.00% |
+| Official Spider evaluator | Exact match | 78.40% |
+
+EGS improved safety metrics but not the top-line execution result. It reduced Spider dev
+schema hallucinations to `2` while keeping execution errors at `4`, but it underperformed
+both the full VAV n=30 run and the retrospective n=4 VAV subset. The result is useful
+because it narrows the next optimization target: better learned selection or repair,
+rather than more expensive hand-written execution-guided reranking.
