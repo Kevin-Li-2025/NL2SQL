@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any
 
@@ -47,16 +48,26 @@ def has_order_by(sql: str) -> bool:
     return bool(re.search(r"\border\s+by\b", sql, flags=re.IGNORECASE))
 
 
-def execute_sqlite(sql: str, db_path: str | Path, max_steps: int = 1_000_000) -> tuple[bool, Any]:
+def execute_sqlite(
+    sql: str,
+    db_path: str | Path,
+    max_steps: int = 1_000_000,
+    max_seconds: float = 8.0,
+) -> tuple[bool, Any]:
     db_path = Path(db_path)
     if not db_path.exists():
         return False, f"database not found: {db_path}"
 
     counter = {"steps": 0}
+    deadline = time.monotonic() + max_seconds if max_seconds > 0 else None
 
     def progress() -> int:
         counter["steps"] += 1
-        return 1 if counter["steps"] > max_steps else 0
+        if counter["steps"] > max_steps:
+            return 1
+        if deadline is not None and time.monotonic() > deadline:
+            return 1
+        return 0
 
     uri = f"file:{db_path}?mode=ro"
     connection = sqlite3.connect(uri, uri=True)
@@ -66,7 +77,10 @@ def execute_sqlite(sql: str, db_path: str | Path, max_steps: int = 1_000_000) ->
         rows = cursor.fetchall()
         return True, rows
     except Exception as exc:  # noqa: BLE001
-        return False, str(exc)
+        message = str(exc)
+        if message == "interrupted":
+            message = f"interrupted after {counter['steps']} progress checks"
+        return False, message
     finally:
         connection.close()
 

@@ -21,6 +21,8 @@ mkdir -p logs
 GRID_LOG="${GRID_LOG:-logs/remote_l20_grid_runs_$(timestamp).log}"
 exec > >(tee -a "$GRID_LOG") 2>&1
 
+source .venv/bin/activate
+
 echo "[grid] Waiting for direct Spider/BIRD summary at ${WAIT_FOR_DIRECT_SUMMARY}."
 while true; do
   if python - "$WAIT_FOR_DIRECT_SUMMARY" <<'PY'
@@ -53,8 +55,6 @@ if [[ "$STOP_WAIT_SESSION_AFTER_DIRECT" == "1" ]]; then
     tmux kill-session -t "$WAIT_FOR_SESSION"
   fi
 fi
-
-source .venv/bin/activate
 
 echo "[grid] Verifying benchmark inputs."
 python - <<'PY'

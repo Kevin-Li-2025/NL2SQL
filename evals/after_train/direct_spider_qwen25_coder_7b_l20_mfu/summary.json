@@ -1,0 +1,69 @@
+{
+  "experiment": "direct_spider_qwen25_coder_7b_l20_mfu",
+  "architecture": "direct",
+  "adapter": "outputs/direct_spider_qwen25_coder_7b_l20_mfu",
+  "suite": "configs/benchmarks_after_train.yaml",
+  "benchmarks": {
+    "spider_dev": {
+      "status": "completed",
+      "input": "data/processed/spider_dev.jsonl",
+      "predictions": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl",
+      "results": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json",
+      "metrics": {
+        "total": 1034,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.48936170212765956,
+        "normalized_exact_count": 506,
+        "execution_accuracy": 0.7572533849129593,
+        "execution_evaluated": 1034,
+        "executable_rate": 0.9468085106382979,
+        "execution_errors": 55,
+        "execution_error_rate": 0.05319148936170213,
+        "schema_hallucination_rate": 0.047388781431334626,
+        "schema_hallucination_count": 49,
+        "missing_predictions": 0
+      },
+      "spider_official": {
+        "gold": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/spider_official/gold.txt",
+        "pred": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/spider_official/pred.txt"
+      }
+    },
+    "spider_dev_mcr": {
+      "status": "skipped_architecture"
+    },
+    "bird_mini_dev": {
+      "status": "completed",
+      "input": "data/processed/bird_mini_dev.jsonl",
+      "predictions": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/predictions.jsonl",
+      "results": "evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/results.json",
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.008,
+        "normalized_exact_count": 4,
+        "execution_accuracy": 0.216,
+        "execution_evaluated": 500,
+        "executable_rate": 0.8,
+        "execution_errors": 100,
+        "execution_error_rate": 0.2,
+        "schema_hallucination_rate": 0.124,
+        "schema_hallucination_count": 62,
+        "missing_predictions": 0
+      }
+    },
+    "bird_mini_dev_mcr": {
+      "status": "skipped_architecture"
+    },
+    "bird_dev": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/bird_dev.jsonl"
+    },
+    "bird_dev_mcr": {
+      "status": "skipped_architecture"
+    },
+    "livesqlbench_base_lite": {
+      "status": "skipped_missing_input",
+      "input": "data/processed/livesqlbench_base_lite.jsonl"
+    }
+  }
+}

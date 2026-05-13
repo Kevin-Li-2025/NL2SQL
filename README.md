@@ -91,20 +91,20 @@ Official references:
 
 ## Current Results
 
-Latest validated remote run snapshot: `2026-05-13 17:56 +08:00`.
+Latest validated remote run snapshot: `2026-05-13 19:43 +08:00`.
 
-Training run:
+Completed L20 training runs:
 
-- Experiment: `rich_context_spider_qwen25_coder_7b_l20_mfu`
-- Checkpoint: `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/checkpoint-96`
-- Tail tokens/sec: `1734.91`
-- Tail dense MFU: `0.6634`
-- MFU target: `0.60` -> met
+| Experiment | Output / Checkpoint | Tail tokens/sec | Tail dense MFU | MFU target |
+| --- | --- | ---: | ---: | ---: |
+| `direct_spider_qwen25_coder_7b_l20_mfu` | `outputs/direct_spider_qwen25_coder_7b_l20_mfu` | 1725.46 | 0.6598 | met |
+| `rich_context_spider_qwen25_coder_7b_l20_mfu` | `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/checkpoint-96` | 1734.91 | 0.6634 | met |
 
 Spider dev results:
 
 | Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
 | --- | ---: | ---: | ---: | ---: | ---: |
+| `direct` single-path | 48.94% | 75.73% | 94.68% | 5.32% | 4.74% |
 | `rich_context` single-path | 50.48% | 78.72% | 95.16% | 4.84% | 3.87% |
 | `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
 
@@ -112,8 +112,23 @@ The multi-path selector improved execution accuracy by `+1.65` points, reduced e
 errors from `50` to `20`, and reduced schema hallucinations from `40` to `18` on the
 full 1,034-example Spider dev split.
 
+BIRD Mini-Dev results:
+
+| Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `direct` single-path | 0.80% | 21.60% | 80.00% | 20.00% | 12.40% |
+
+This is the first BIRD Mini-Dev baseline. The harder schema-aware and MCR BIRD runs are
+queued on the L20 after the Spider schema-aware pass.
+
 Artifacts already saved in the repo snapshot:
 
+- `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json`
+- `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
+- `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/results.json`
+- `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/predictions.jsonl`
+- `evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/summary.json`
+- `outputs/direct_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/results.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/results.json`
@@ -278,11 +293,11 @@ The first meaningful result should be a table like this:
 
 | Base model | Architecture | Benchmark | Normalized EM | Execution Acc |
 | --- | --- | --- | ---: | ---: |
-| Qwen2.5-Coder-7B-Instruct | direct | Spider dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | direct | Spider dev | 48.94% | 75.73% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | Spider dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | rich_context | Spider dev | 50.48% | 78.72% |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
-| Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | TBD | TBD |
 
