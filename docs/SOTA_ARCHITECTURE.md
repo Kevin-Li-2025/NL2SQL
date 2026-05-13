@@ -75,6 +75,8 @@ Use one base model and one adapter, but ask it through several reasoning views:
 - `decompose`: internally split question into subgoals
 - `query_plan`: table scans, joins, predicates, grouping, order, projection
 - `skeleton`: generate a SQL skeleton first, then fill schema items
+- `execution_first`: explicitly optimize for executable SQLite, conservative joins, and
+  schema-grounded filters
 
 This borrows the robust part of multi-generator systems without requiring several large
 models on one L20. The first implementation is in `nl2sql_l20.pipeline`.
@@ -98,6 +100,19 @@ question + schema + sql_a + features_a + sql_b + features_b -> A | B
 
 The pairwise setup matters because SOTA systems usually select among plausible SQLs, not
 just classify a single SQL as correct.
+
+The `EGS-SQL-L20` selector is the current heuristic upgrade before a learned selector. It
+scores candidates by:
+
+- executable SQL first;
+- no hallucinated tables or qualified columns;
+- repeated result signature and repeated SQL;
+- question/operator fit, such as `count`, `avg`, `sum`, `distinct`, and order/limit;
+- matched value hints appearing in the SQL;
+- prompt-priority tie breakers.
+
+The first EGS run is `spider_dev_egs_n32`, using 4 prompt architectures and 8 samples per
+architecture.
 
 ## Module 4: Merge / Repair Adapter
 
@@ -145,9 +160,10 @@ Do not jump straight to the full system. Run ablations:
 | A1 | rich_context SFT | measure metadata/value gain |
 | A2 | MCR pipeline with one sample per path | measure test-time architecture gain |
 | A3 | MCR with 2-4 samples per path | measure self-consistency gain |
-| A4 | pairwise selector adapter | replace heuristic selector |
-| A5 | merge/repair adapter | handle candidate disagreement |
-| A6 | optional GRPO | optimize execution accuracy directly |
+| A4 | EGS heuristic reranker | add schema/value/operator features before learned selection |
+| A5 | pairwise selector adapter | replace heuristic selector |
+| A6 | merge/repair adapter | handle candidate disagreement |
+| A7 | optional GRPO | optimize execution accuracy directly |
 
 ## What Would Count As Strong
 

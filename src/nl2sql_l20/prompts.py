@@ -38,6 +38,13 @@ SKELETON_SYSTEM = (
     "fill schema items using only the provided schema. Return only the final SQLite SQL query."
 )
 
+EXECUTION_FIRST_SYSTEM = (
+    "You are an expert text-to-SQL model optimizing for SQLite execution accuracy. Use only "
+    "provided tables and columns, prefer the simplest query that answers the question, include "
+    "GROUP BY for non-aggregated selected columns, and ground filters in matched values when "
+    "available. Return only the final SQLite SQL query."
+)
+
 ARCHITECTURES = (
     "direct",
     "schema_aware",
@@ -45,6 +52,7 @@ ARCHITECTURES = (
     "decompose",
     "query_plan",
     "skeleton",
+    "execution_first",
 )
 
 
@@ -135,6 +143,12 @@ def build_messages(row: dict[str, Any], architecture: str) -> list[dict[str, str
     if architecture == "skeleton":
         return [
             {"role": "system", "content": SKELETON_SYSTEM},
+            {"role": "user", "content": _rich_user_content(row)},
+        ]
+
+    if architecture == "execution_first":
+        return [
+            {"role": "system", "content": EXECUTION_FIRST_SYSTEM},
             {"role": "user", "content": _rich_user_content(row)},
         ]
 

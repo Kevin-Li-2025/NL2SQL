@@ -8,6 +8,7 @@ from typing import Any
 from tqdm.auto import tqdm
 
 from nl2sql_l20.config import load_config, require
+from nl2sql_l20.evaluate import schema_violations
 from nl2sql_l20.io import read_jsonl, write_jsonl
 from nl2sql_l20.prompts import ARCHITECTURES, apply_chat_template, build_messages
 from nl2sql_l20.sql import execute_sqlite, extract_sql, normalize_result_rows, normalize_sql
@@ -150,6 +151,7 @@ def architecture_priority(candidate: dict[str, Any]) -> int:
         "decompose": 3,
         "query_plan": 2,
         "skeleton": 1,
+        "execution_first": 5,
         "schema_aware": 0,
         "direct": 0,
     }
@@ -192,11 +194,86 @@ def select_candidate_value_aware(candidates: list[dict[str, Any]]) -> dict[str, 
     return max(viable, key=score)
 
 
-def select_candidate_by_strategy(candidates: list[dict[str, Any]], strategy: str) -> dict[str, Any]:
+def schema_violation_count(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    violations = schema_violations(candidate.get("prediction", ""), row)
+    return len(violations["tables"]) + len(violations["qualified_columns"])
+
+
+def value_hint_overlap(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    prediction = (candidate.get("prediction") or "").lower()
+    hints = row.get("value_hints") or {}
+    matches = 0
+    for values in hints.values():
+        for value in values or []:
+            text = str(value).strip().lower()
+            if len(text) >= 2 and text in prediction:
+                matches += 1
+    return matches
+
+
+def question_operator_score(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    question = (row.get("question") or "").lower()
+    sql = (candidate.get("normalized_prediction") or "").lower()
+    score = 0
+    if any(term in question for term in ("how many", "number of", "count of")):
+        score += int("count(" in sql)
+    if any(term in question for term in ("average", "avg", "mean")):
+        score += int("avg(" in sql)
+    if any(term in question for term in ("total", "sum of")):
+        score += int("sum(" in sql)
+    if any(term in question for term in ("maximum", "highest", "largest", "most")):
+        score += int("max(" in sql or ("order by" in sql and "limit" in sql))
+    if any(term in question for term in ("minimum", "lowest", "smallest", "least")):
+        score += int("min(" in sql or ("order by" in sql and "limit" in sql))
+    if any(term in question for term in ("different", "distinct", "unique")):
+        score += int("distinct" in sql)
+    return score
+
+
+def select_candidate_execution_guided(
+    candidates: list[dict[str, Any]],
+    row: dict[str, Any],
+) -> dict[str, Any]:
+    result_counts, sql_counts = candidate_counts(candidates)
+
+    def score(candidate: dict[str, Any]) -> tuple[int, int, int, int, int, int, int, int, int]:
+        violation_count = schema_violation_count(candidate, row)
+        executable_score = 1 if candidate.get("executable") is True else 0
+        schema_clean_score = 1 if violation_count == 0 else 0
+        result_score = result_counts.get(candidate.get("result_signature", ""), 0)
+        sql_score = sql_counts.get(candidate.get("normalized_prediction", ""), 0)
+        operator_score = question_operator_score(candidate, row)
+        value_score = value_hint_overlap(candidate, row)
+        non_degenerate_score = 1 if candidate.get("result_degenerate") is False else 0
+        priority_score = architecture_priority(candidate)
+        return (
+            executable_score,
+            schema_clean_score,
+            -violation_count,
+            result_score,
+            sql_score,
+            operator_score,
+            value_score,
+            non_degenerate_score,
+            priority_score,
+        )
+
+    return max(candidates, key=score)
+
+
+def select_candidate_by_strategy(
+    candidates: list[dict[str, Any]],
+    strategy: str,
+    row: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     if strategy == "value_aware_voting":
         return select_candidate_value_aware(candidates)
     if strategy == "execution_consistency":
         return select_candidate(candidates)
+    if strategy == "execution_guided_rerank":
+        if row is None:
+            raise ValueError("execution_guided_rerank requires the source row.")
+        return select_candidate_execution_guided(candidates, row)
     raise ValueError(f"Unknown selection strategy: {strategy}")
 
 
@@ -224,7 +301,7 @@ def main() -> None:
     parser.add_argument("--top-p", type=float, default=0.95)
     parser.add_argument(
         "--selection-strategy",
-        choices=("execution_consistency", "value_aware_voting"),
+        choices=("execution_consistency", "value_aware_voting", "execution_guided_rerank"),
         default="execution_consistency",
     )
     parser.add_argument("--max-examples", type=int, default=None)
@@ -268,7 +345,7 @@ def main() -> None:
             ):
                 candidates.append(annotate_execution(candidate, row.get("db_path", "")))
 
-        selected = select_candidate_by_strategy(candidates, args.selection_strategy)
+        selected = select_candidate_by_strategy(candidates, args.selection_strategy, row)
         predictions.append(
             {
                 "id": row["id"],

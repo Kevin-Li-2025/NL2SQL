@@ -97,6 +97,18 @@ rich_context + decompose + query_plan + skeleton -> execution grouping -> select
 
 See [docs/SOTA_ARCHITECTURE.md](docs/SOTA_ARCHITECTURE.md).
 
+### `EGS-SQL-L20`
+
+The next execution-accuracy run adds an `execution_first` prompt and an
+execution-guided schema reranker:
+
+```text
+rich_context + execution_first + query_plan + skeleton -> safe execution -> schema/value/operator rerank
+```
+
+The first EGS benchmark is `spider_dev_egs_n32`: 32 candidates per example, same
+rich-context LoRA adapter, same Spider dev split.
+
 ## Benchmarks
 
 Recommended order:
