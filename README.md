@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Spider Dev EX](https://img.shields.io/badge/Spider_dev_EX-80.37%25-brightgreen)
+![Spider Dev EX](https://img.shields.io/badge/Spider_dev_EX-82.11%25-brightgreen)
 ![L20 Dense MFU](https://img.shields.io/badge/L20_dense_MFU-73.22%25-brightgreen)
 
 Reproducible natural-language-to-SQL fine-tuning and multi-path inference benchmarks on
@@ -10,7 +10,7 @@ public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU
 
 ## Result Snapshot
 
-Latest validated remote run snapshot: `2026-05-13 23:58 +08:00`.
+Latest validated remote run snapshot: `2026-05-14 02:27 +08:00`.
 
 | Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
 | --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
@@ -18,6 +18,7 @@ Latest validated remote run snapshot: `2026-05-13 23:58 +08:00`.
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 48.65% | 76.40% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 50.48% | 78.72% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `VAV-SQL-L20` | value-aware multi-prompt voting | 30 | local SQLite evaluator | 52.03% | 82.11% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 1.20% | 37.40% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 0.60% | 37.20% |
@@ -164,10 +165,12 @@ Spider dev results:
 | `schema_aware` single-path | 48.65% | 76.40% | 95.26% | 4.74% | 3.77% |
 | `rich_context` single-path | 50.48% | 78.72% | 95.16% | 4.84% | 3.87% |
 | `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
+| `VAV-SQL-L20` n=30 voting | 52.03% | 82.11% | 99.61% | 0.39% | 0.58% |
 
-The multi-path selector improved execution accuracy by `+1.65` points, reduced execution
-errors from `50` to `20`, and reduced schema hallucinations from `40` to `18` on the
-full 1,034-example Spider dev split.
+The current best Spider run is `VAV-SQL-L20`, which improves execution accuracy by `+3.39`
+points over rich-context single-path and `+1.74` points over the 8-candidate MCR run. It
+reduces execution errors to `4` and schema hallucinations to `6` on the full
+1,034-example Spider dev split.
 
 BIRD Mini-Dev results:
 
@@ -192,7 +195,8 @@ Comparison boundaries:
   matched values, evidence fields when present, and question-linked schema hints.
 - `direct`, `schema_aware`, and `rich_context` use one generation per example.
   `MCR-SQL-L20` currently uses 8 candidate generations per example in
-  `configs/pipeline_mcr_l20.yaml`.
+  `configs/pipeline_mcr_l20.yaml`. `VAV-SQL-L20` uses 30 candidate generations per
+  example in `configs/pipeline_spider_vav_l20.yaml`.
 - Official Spider evaluator export files are saved, but the README reports this repo's
   local normalized EM and SQLite execution metrics until official evaluator logs are
   checked in.
@@ -215,6 +219,8 @@ Artifacts already saved in the repo snapshot:
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev/predictions.jsonl`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/results.json`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/predictions.jsonl`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/results.json`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/predictions.jsonl`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/summary.json`
 - `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
 
@@ -379,6 +385,7 @@ The first meaningful result should be a table like this:
 | Qwen2.5-Coder-7B-Instruct | schema_aware | Spider dev | 48.65% | 76.40% |
 | Qwen2.5-Coder-7B-Instruct | rich_context | Spider dev | 50.48% | 78.72% |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
+| Qwen2.5-Coder-7B-Instruct | VAV-SQL-L20 | Spider dev | 52.03% | 82.11% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | 1.20% | 37.40% |
 | Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | 0.60% | 37.20% |
@@ -390,6 +397,9 @@ The first meaningful result should be a table like this:
   improves execution accuracy from 78.72% to 80.37%, reduces execution errors from 50 to
   20, and reduces schema hallucinations from 40 to 18. The cost is 8 candidate generations
   per example rather than 1.
+- **VAV Accuracy**: On the same Spider dev split, n=30 value-aware voting reaches 82.11%
+  execution accuracy, with 99.61% executable rate and 0.58% schema hallucination rate. The
+  cost is higher inference latency from 30 candidate generations per example.
 - **Hardware Optimization**: The completed L20 runs maintain up to 73.22% dense MFU in
   this repo's training setup, demonstrating strong single-L20 training efficiency in this
   experimental setup.
