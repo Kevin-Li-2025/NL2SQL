@@ -1,0 +1,18 @@
+extends: configs/pipeline_mcr_l20.yaml
+
+pipeline:
+  name: train_candidates_l20
+  architecture: rich_context
+  architectures:
+    - rich_context
+    - decompose
+    - query_plan
+    - skeleton
+    - execution_first
+  samples_per_architecture: 2
+  temperature: 0.45
+  top_p: 0.95
+  selector: execution_guided_rerank
+
+generation:
+  max_new_tokens: 512

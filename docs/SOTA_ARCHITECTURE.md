@@ -165,6 +165,38 @@ Do not jump straight to the full system. Run ablations:
 | A6 | merge/repair adapter | handle candidate disagreement |
 | A7 | optional GRPO | optimize execution accuracy directly |
 
+## Candidate-Repair Post-Training
+
+The next queued architecture is `Candidate-Repair-SQL-L20`. It keeps the same
+Qwen2.5-Coder-7B base model and adds a second LoRA adapter trained to read
+candidate SQL plus execution feedback.
+
+Flow:
+
+```text
+rich-context LoRA -> multi-prompt candidates -> execution/schema/value features
+-> candidate_repair LoRA -> safety gate -> fallback to execution-guided candidate
+```
+
+This targets the current failure mode directly: MCR often generates a correct or
+near-correct query, but the heuristic selector can still pick the wrong candidate
+or keep a small schema/value mistake. The repair adapter sees the candidate list,
+result vote counts, execution errors, schema violations, value-hint overlap, and
+question/operator hints, then emits one final SQL query.
+
+The first run intentionally trains only from Spider train candidate contexts and
+uses Spider/BIRD dev splits only for evaluation. That keeps the evidence cleaner
+than training on BIRD Mini-Dev while still testing whether a learned repair stage
+transfers to BIRD.
+
+Implementation entry points:
+
+- `nl2sql_l20.candidate_data` builds candidate-repair SFT rows.
+- `nl2sql_l20.repair_infer` runs the learned repair stage with a safety gate.
+- `configs/experiment_candidate_repair_spider_l20_mfu.yaml` trains the repair LoRA.
+- `scripts/remote_l20_candidate_repair.sh` queues the full run behind the current
+  L20 experiments.
+
 ## What Would Count As Strong
 
 Realistic milestones:

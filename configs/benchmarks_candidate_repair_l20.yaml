@@ -1,0 +1,16 @@
+output_dir: evals/sota
+skip_missing: true
+
+benchmarks:
+  - name: spider_dev_repair
+    input: data/processed/spider_dev.jsonl
+    mode: repair
+    candidates: evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_egs_n32/predictions.jsonl
+    execute: true
+    export_spider: true
+
+  - name: bird_mini_dev_repair
+    input: data/processed/bird_mini_dev.jsonl
+    mode: repair
+    candidates: evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_mcr/predictions.jsonl
+    execute: true

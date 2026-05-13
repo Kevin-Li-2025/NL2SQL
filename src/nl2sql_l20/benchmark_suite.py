@@ -133,6 +133,32 @@ def run_prediction(
         run_command(command)
         return
 
+    if mode == "repair":
+        candidate_path = benchmark.get("candidates")
+        if not candidate_path:
+            raise ValueError(f"Repair benchmark {benchmark.get('name')} requires candidates")
+        command = [
+            sys.executable,
+            "-m",
+            "nl2sql_l20.repair_infer",
+            "--config",
+            experiment_config,
+            "--input",
+            input_path,
+            "--candidates",
+            str(candidate_path),
+            "--output",
+            str(pred_path),
+            "--adapter",
+            adapter,
+        ]
+        if benchmark.get("max_candidates") is not None:
+            command.extend(["--max-candidates", str(benchmark["max_candidates"])])
+        if max_examples is not None:
+            command.extend(["--max-examples", str(max_examples)])
+        run_command(command)
+        return
+
     raise ValueError(f"Unknown benchmark mode: {mode}")
 
 

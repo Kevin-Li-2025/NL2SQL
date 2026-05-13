@@ -45,6 +45,13 @@ EXECUTION_FIRST_SYSTEM = (
     "available. Return only the final SQLite SQL query."
 )
 
+CANDIDATE_REPAIR_SYSTEM = (
+    "You are an expert text-to-SQL repair model. You receive a question, schema context, "
+    "matched values, and several candidate SQLite queries with execution feedback. Select, "
+    "merge, or minimally repair the candidates into one executable SQLite query that answers "
+    "the question. Use only provided tables and columns. Return only the final SQL query."
+)
+
 ARCHITECTURES = (
     "direct",
     "schema_aware",
@@ -53,6 +60,7 @@ ARCHITECTURES = (
     "query_plan",
     "skeleton",
     "execution_first",
+    "candidate_repair",
 )
 
 
@@ -78,6 +86,26 @@ def _rich_user_content(row: dict[str, Any]) -> str:
             row.get("m_schema_text") or row.get("linked_schema_text") or row["schema_text"],
             "Question:",
             row["question"],
+        ]
+    )
+
+
+def _candidate_repair_user_content(row: dict[str, Any]) -> str:
+    evidence = row.get("evidence") or "None"
+    return "\n\n".join(
+        [
+            f"Database: {row['db_id']}",
+            f"Dialect: {row.get('dialect', 'sqlite')}",
+            "Evidence:",
+            evidence,
+            "Matched database values:",
+            row.get("value_hint_text") or "None",
+            "Schema:",
+            row.get("m_schema_text") or row.get("linked_schema_text") or row["schema_text"],
+            "Question:",
+            row["question"],
+            "Candidate SQL queries and execution feedback:",
+            row.get("candidate_context") or "None",
         ]
     )
 
@@ -150,6 +178,12 @@ def build_messages(row: dict[str, Any], architecture: str) -> list[dict[str, str
         return [
             {"role": "system", "content": EXECUTION_FIRST_SYSTEM},
             {"role": "user", "content": _rich_user_content(row)},
+        ]
+
+    if architecture == "candidate_repair":
+        return [
+            {"role": "system", "content": CANDIDATE_REPAIR_SYSTEM},
+            {"role": "user", "content": _candidate_repair_user_content(row)},
         ]
 
     raise ValueError(f"Unknown architecture: {architecture}")
