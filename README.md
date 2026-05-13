@@ -1,7 +1,33 @@
 # NL2SQL L20
 
-Fine-tune and compare natural-language-to-SQL systems on public benchmarks using one
-NVIDIA L20 GPU.
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+![Spider Dev EX](https://img.shields.io/badge/Spider_dev_EX-80.37%25-brightgreen)
+![L20 Dense MFU](https://img.shields.io/badge/L20_dense_MFU-66.34%25-brightgreen)
+
+Reproducible natural-language-to-SQL fine-tuning and multi-path inference benchmarks on
+public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU.
+
+## Result Snapshot
+
+Latest validated remote run snapshot: `2026-05-13 19:43 +08:00`.
+
+| Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
+| --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 48.94% | 75.73% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 50.48% | 78.72% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
+| BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
+
+The Spider numbers above are local normalized exact match and SQLite execution accuracy,
+not yet claimed as official Spider leaderboard numbers. Official Spider evaluator export
+files are generated under `spider_official/`; checked-in official evaluator stdout should
+be added before making paper-style comparisons.
+
+BIRD Mini-Dev is intentionally shown as a weak out-of-domain direct baseline: the adapter
+was trained on Spider and the direct architecture does not use BIRD evidence, value
+retrieval, or complex schema/value grounding. Rich-context and MCR BIRD Mini-Dev runs are
+the next validation target.
 
 The first experiment keeps the base model fixed:
 
@@ -62,8 +88,8 @@ question-linked schema hints. This is the stronger training target for BIRD-styl
 
 ### `MCR-SQL-L20`
 
-The SOTA-oriented path is a multi-candidate pipeline using the same base model through
-several prompt architectures:
+The research-oriented path is a multi-candidate pipeline using the same base model
+through several prompt architectures:
 
 ```text
 rich_context + decompose + query_plan + skeleton -> execution grouping -> selected SQL
@@ -90,8 +116,6 @@ Official references:
 - [Qwen2.5-Coder model overview](https://qwen2.org/qwen2-5-coder/)
 
 ## Current Results
-
-Latest validated remote run snapshot: `2026-05-13 19:43 +08:00`.
 
 Completed L20 training runs:
 
@@ -120,6 +144,19 @@ BIRD Mini-Dev results:
 
 This is the first BIRD Mini-Dev baseline. The harder schema-aware and MCR BIRD runs are
 queued on the L20 after the Spider schema-aware pass.
+
+Comparison boundaries:
+
+- These are same-base-model comparisons inside this repo, not fair comparisons against
+  DIN-SQL, DAIL-SQL, C3, MAC-SQL, CHESS, CHASE-SQL, or other full systems.
+- Spider rows use the prepared full database schema. Rich-context rows additionally use
+  M-Schema text, matched values, evidence fields when present, and question-linked schema
+  hints.
+- `direct` and `rich_context` use one generation per example. `MCR-SQL-L20` currently
+  uses 8 candidate generations per example in `configs/pipeline_mcr_l20.yaml`.
+- Official Spider evaluator export files are saved, but the README reports this repo's
+  local normalized EM and SQLite execution metrics until official evaluator logs are
+  checked in.
 
 Artifacts already saved in the repo snapshot:
 
@@ -299,12 +336,25 @@ The first meaningful result should be a table like this:
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | TBD | TBD |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | TBD | TBD |
 
-## Key Breakthroughs
+## Evidence And Limits
 
-- **MCR Efficiency**: By introducing the **MCR (Multi-path Candidate Ranking)** mechanism, we reduced the schema hallucination rate of the 7B model by **55%** while maintaining high L20 compute utilization, ultimately achieving **80.37% execution accuracy** on the Spider Dev benchmark.
-- **Hardware Optimization**: Maintained a sustained **MFU of 66%+** on NVIDIA L20, demonstrating state-of-the-art training efficiency for local LLM fine-tuning.
+- **MCR Efficiency**: On the full 1,034-example Spider dev split, the MCR selector
+  improves execution accuracy from 78.72% to 80.37%, reduces execution errors from 50 to
+  20, and reduces schema hallucinations from 40 to 18. The cost is 8 candidate generations
+  per example rather than 1.
+- **Hardware Optimization**: The completed L20 runs maintain roughly 66% dense MFU in
+  this repo's training setup, demonstrating strong single-L20 training efficiency in this
+  experimental setup.
+- **Current Gap**: BIRD Mini-Dev direct transfer is weak at 21.60% execution accuracy.
+  This should not be read as a strong BIRD result until rich-context retrieval, value
+  grounding, and MCR selection are evaluated.
+
+See [docs/ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md),
+[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md), and
+[docs/ABLATIONS.md](docs/ABLATIONS.md) for the evidence chain and planned controls.
 
 ## 未来方向 / Future Directions
 self-consistency, and SQL repair. Those should be added as separate architectures so the
