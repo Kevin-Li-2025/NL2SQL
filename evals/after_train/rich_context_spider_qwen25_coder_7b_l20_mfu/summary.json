@@ -53,8 +53,44 @@
       }
     },
     "bird_mini_dev": {
-      "status": "skipped_missing_input",
-      "input": "data/processed/bird_mini_dev.jsonl"
+      "status": "completed",
+      "input": "data/processed/bird_mini_dev.jsonl",
+      "predictions": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/predictions.jsonl",
+      "results": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev/results.json",
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.006,
+        "normalized_exact_count": 3,
+        "execution_accuracy": 0.372,
+        "execution_evaluated": 500,
+        "executable_rate": 0.834,
+        "execution_errors": 83,
+        "execution_error_rate": 0.166,
+        "schema_hallucination_rate": 0.108,
+        "schema_hallucination_count": 54,
+        "missing_predictions": 0
+      }
+    },
+    "bird_mini_dev_mcr": {
+      "status": "completed",
+      "input": "data/processed/bird_mini_dev.jsonl",
+      "predictions": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_mcr/predictions.jsonl",
+      "results": "evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_mcr/results.json",
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.006,
+        "normalized_exact_count": 3,
+        "execution_accuracy": 0.392,
+        "execution_evaluated": 500,
+        "executable_rate": 0.932,
+        "execution_errors": 34,
+        "execution_error_rate": 0.068,
+        "schema_hallucination_rate": 0.048,
+        "schema_hallucination_count": 24,
+        "missing_predictions": 0
+      }
     },
     "bird_dev": {
       "status": "skipped_missing_input",
