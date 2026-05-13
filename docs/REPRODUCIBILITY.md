@@ -137,7 +137,20 @@ nl2sql-export-spider \
 ```
 
 Then run `evaluation.py` from `taoyds/spider` with the generated `gold.txt` and `pred.txt`.
+The upstream script needs `nltk` available in the Python environment:
+
+```bash
+python /path/to/spider/evaluation.py \
+  --gold evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/spider_official/gold.txt \
+  --pred evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/spider_official/pred.txt \
+  --db data/raw/spider/database \
+  --table data/raw/spider/tables.json \
+  --etype all
+```
+
 Do not call a result an official Spider score until that evaluator output is checked in.
+For example, the current VAV run has checked-in stdout at
+`evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/spider_official/evaluation_stdout.txt`.
 
 ## Checked-In Result Artifacts
 
@@ -146,12 +159,14 @@ Current result artifacts are under:
 ```text
 evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/
 evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/
+evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/
 outputs/direct_spider_qwen25_coder_7b_l20_mfu/perf.summary.json
 outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/perf.summary.json
 ```
 
 Each benchmark folder includes `predictions.jsonl` and `results.json`; Spider folders also
-include `spider_official/gold.txt` and `spider_official/pred.txt`.
+include `spider_official/gold.txt` and `spider_official/pred.txt`. Headline Spider
+numbers should also include `spider_official/evaluation_stdout.txt` when available.
 
 ## Fair-Comparison Checklist
 

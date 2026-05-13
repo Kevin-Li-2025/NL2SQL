@@ -25,9 +25,10 @@ Latest validated remote run snapshot: `2026-05-14 02:27 +08:00`.
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 0.60% | 39.20% |
 
 The Spider numbers above are local normalized exact match and SQLite execution accuracy,
-not yet claimed as official Spider leaderboard numbers. Official Spider evaluator export
-files are generated under `spider_official/`; checked-in official evaluator stdout should
-be added before making paper-style comparisons.
+not official leaderboard numbers. For the current best `VAV-SQL-L20` run, the upstream
+Spider evaluator stdout is checked in and reports `81.90%` execution accuracy and
+`78.50%` official exact match. The official exact match is a parsed Spider metric and is
+not directly comparable to this repo's strict normalized-string EM.
 
 BIRD Mini-Dev is intentionally shown as out-of-domain transfer from Spider-trained
 adapters. The best current BIRD Mini-Dev run is `MCR-SQL-L20` at 39.20% execution
@@ -54,6 +55,7 @@ repeatable NL2SQL benchmark repo:
 - inference output files
 - normalized exact match and SQLite execution comparison
 - export format for the official Spider evaluator
+- checked-in official Spider evaluator stdout and inference cost notes for the best run
 
 ## Architectures
 
@@ -172,6 +174,15 @@ points over rich-context single-path and `+1.74` points over the 8-candidate MCR
 reduces execution errors to `4` and schema hallucinations to `6` on the full
 1,034-example Spider dev split.
 
+Official Spider evaluator for `VAV-SQL-L20`:
+
+| Evaluator | Exact Match | Execution Acc | Easy EX | Medium EX | Hard EX | Extra EX |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Official Spider `evaluation.py --etype all` | 78.50% | 81.90% | 92.30% | 86.50% | 70.70% | 65.70% |
+
+The official stdout is saved at
+`evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/spider_official/evaluation_stdout.txt`.
+
 BIRD Mini-Dev results:
 
 | Architecture | Normalized EM | Execution Acc | Executable Rate | Exec Error Rate | Schema Hallucination |
@@ -198,8 +209,11 @@ Comparison boundaries:
   `configs/pipeline_mcr_l20.yaml`. `VAV-SQL-L20` uses 30 candidate generations per
   example in `configs/pipeline_spider_vav_l20.yaml`.
 - Official Spider evaluator export files are saved, but the README reports this repo's
-  local normalized EM and SQLite execution metrics until official evaluator logs are
-  checked in.
+  local normalized EM and SQLite execution metrics in the main tables. The best VAV run
+  additionally includes checked-in upstream Spider evaluator stdout.
+- VAV is an accuracy-oriented inference configuration. Its cost is 30 candidate
+  generations per example, 31,020 total candidates for Spider dev, and 2:28:23 wall-clock
+  time on one L20 for the full 1,034-example split.
 
 Artifacts already saved in the repo snapshot:
 
@@ -221,6 +235,9 @@ Artifacts already saved in the repo snapshot:
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_mcr/predictions.jsonl`
 - `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/results.json`
 - `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/predictions.jsonl`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/spider_official/evaluation_stdout.txt`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/cost_summary.json`
+- `logs/remote_l20_sota_spider_vav_20260513_192853.log`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/summary.json`
 - `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
 
@@ -399,7 +416,9 @@ The first meaningful result should be a table like this:
   per example rather than 1.
 - **VAV Accuracy**: On the same Spider dev split, n=30 value-aware voting reaches 82.11%
   execution accuracy, with 99.61% executable rate and 0.58% schema hallucination rate. The
-  cost is higher inference latency from 30 candidate generations per example.
+  official Spider evaluator reports 81.90% execution accuracy and 78.50% exact match. The
+  cost is 30 candidate generations per example, 31,020 total candidates, and 2.47 L20
+  GPU-hours for the full Spider dev run.
 - **Hardware Optimization**: The completed L20 runs maintain up to 73.22% dense MFU in
   this repo's training setup, demonstrating strong single-L20 training efficiency in this
   experimental setup.
@@ -409,7 +428,8 @@ The first meaningful result should be a table like this:
   candidate repair rather than raw executability.
 
 See [docs/ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md),
-[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md), and
+[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md),
+[docs/INFERENCE_COST.md](docs/INFERENCE_COST.md), and
 [docs/ABLATIONS.md](docs/ABLATIONS.md) for the evidence chain and planned controls.
 
 ## 未来方向 / Future Directions

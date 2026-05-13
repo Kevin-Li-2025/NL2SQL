@@ -1,0 +1,31 @@
+{
+  "benchmark": "Spider dev",
+  "run": "VAV-SQL-L20 n=30",
+  "model": "Qwen2.5-Coder-7B-Instruct + rich-context Spider LoRA",
+  "adapter": "outputs/rich_context_spider_qwen25_coder_7b_l20_mfu",
+  "input_examples": 1034,
+  "architectures": [
+    "rich_context",
+    "query_plan",
+    "skeleton"
+  ],
+  "samples_per_architecture": 10,
+  "candidates_per_example": 30,
+  "total_candidates": 31020,
+  "selection_strategy": "value_aware_voting",
+  "wall_clock_seconds": 8903,
+  "wall_clock_hms": "2:28:23",
+  "single_l20_gpu_hours": 2.4731,
+  "seconds_per_example": 8.61,
+  "examples_per_minute": 6.97,
+  "candidates_per_second": 3.48,
+  "local_sqlite_execution_accuracy": 0.8210831721470019,
+  "official_spider_execution_accuracy": 0.819,
+  "official_spider_exact_match": 0.785,
+  "notes": [
+    "Wall-clock timing is from the tqdm completion line in logs/remote_l20_sota_spider_vav_20260513_192853.log.",
+    "The timing includes model generation, SQLite candidate execution annotation, value-aware selection, and JSONL writing.",
+    "The timing excludes earlier queue waiting time before the VAV command started.",
+    "Continuous power logging was not captured during the VAV command, so this file reports GPU-hours rather than kWh."
+  ]
+}

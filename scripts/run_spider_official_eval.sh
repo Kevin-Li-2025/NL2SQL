@@ -5,6 +5,7 @@ SPIDER_REPO="${1:?path to taoyds/spider repo required}"
 PRED_JSONL="${2:-evals/predictions.jsonl}"
 OUT_DIR="${3:-evals/spider_official}"
 SPIDER_DATA="${4:-data/raw/spider}"
+STDOUT_PATH="${5:-$OUT_DIR/evaluation_stdout.txt}"
 PYTHON_BIN="${PYTHON:-python3}"
 
 "$PYTHON_BIN" -m nl2sql_l20.export_spider \
@@ -17,4 +18,4 @@ PYTHON_BIN="${PYTHON:-python3}"
   --pred "$OUT_DIR/pred.txt" \
   --db "$SPIDER_DATA/database" \
   --table "$SPIDER_DATA/tables.json" \
-  --etype all
+  --etype all | tee "$STDOUT_PATH"

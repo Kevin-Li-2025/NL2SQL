@@ -49,7 +49,9 @@ The local evaluator writes:
 - per-example details
 
 For Spider paper-grade reporting, use the generated `spider_official/gold.txt` and
-`spider_official/pred.txt` with the official Spider evaluator.
+`spider_official/pred.txt` with the official Spider evaluator, then check in the stdout
+next to those files. The local evaluator metrics and official Spider exact match are
+different metrics, so report them as separate rows or columns.
 
 ## Controls
 
