@@ -21,7 +21,7 @@ def _result_signature(rows: list[tuple[Any, ...]]) -> str:
     return hashlib.sha256(payload).hexdigest()[:16]
 
 
-def generate_candidate(
+def generate_candidates(
     model: Any,
     tokenizer: Any,
     row: dict[str, Any],
@@ -29,8 +29,8 @@ def generate_candidate(
     max_new_tokens: int,
     temperature: float,
     top_p: float,
-    sample_index: int,
-) -> dict[str, Any]:
+    sample_count: int,
+) -> list[dict[str, Any]]:
     prompt = apply_chat_template(
         tokenizer,
         build_messages(row, architecture),
@@ -46,22 +46,49 @@ def generate_candidate(
     }
     if temperature > 0:
         generate_kwargs["temperature"] = temperature
+        generate_kwargs["num_return_sequences"] = sample_count
 
     import torch
 
     with torch.no_grad():
         output_ids = model.generate(**encoded, **generate_kwargs)
 
-    generated = output_ids[0, encoded["input_ids"].shape[1] :]
-    raw_generation = tokenizer.decode(generated, skip_special_tokens=True).strip()
-    prediction = extract_sql(raw_generation)
-    return {
-        "architecture": architecture,
-        "sample_index": sample_index,
-        "prediction": prediction,
-        "normalized_prediction": normalize_sql(prediction),
-        "raw_generation": raw_generation,
-    }
+    candidates = []
+    for sample_index, output in enumerate(output_ids[:sample_count]):
+        generated = output[encoded["input_ids"].shape[1] :]
+        raw_generation = tokenizer.decode(generated, skip_special_tokens=True).strip()
+        prediction = extract_sql(raw_generation)
+        candidates.append(
+            {
+                "architecture": architecture,
+                "sample_index": sample_index,
+                "prediction": prediction,
+                "normalized_prediction": normalize_sql(prediction),
+                "raw_generation": raw_generation,
+            }
+        )
+    return candidates
+
+
+def result_is_degenerate(rows: list[tuple[Any, ...]]) -> bool:
+    if not rows:
+        return True
+    flattened = [value for row in rows for value in row]
+    if not flattened:
+        return True
+
+    def is_zero_like(value: Any) -> bool:
+        if value is None:
+            return True
+        text = str(value).strip().lower()
+        if text in {"", "0", "0.0", "false", "none", "null"}:
+            return True
+        try:
+            return float(text) == 0.0
+        except ValueError:
+            return False
+
+    return all(is_zero_like(value) for value in flattened)
 
 
 def annotate_execution(candidate: dict[str, Any], db_path: str) -> dict[str, Any]:
@@ -71,6 +98,8 @@ def annotate_execution(candidate: dict[str, Any], db_path: str) -> dict[str, Any
                 "executable": None,
                 "execution_error": "",
                 "result_signature": "",
+                "result_row_count": None,
+                "result_degenerate": None,
             }
         )
         return candidate
@@ -82,6 +111,8 @@ def annotate_execution(candidate: dict[str, Any], db_path: str) -> dict[str, Any
                 "executable": False,
                 "execution_error": str(result),
                 "result_signature": "",
+                "result_row_count": None,
+                "result_degenerate": None,
             }
         )
         return candidate
@@ -91,12 +122,14 @@ def annotate_execution(candidate: dict[str, Any], db_path: str) -> dict[str, Any
             "executable": True,
             "execution_error": "",
             "result_signature": _result_signature(result),
+            "result_row_count": len(result),
+            "result_degenerate": result_is_degenerate(result),
         }
     )
     return candidate
 
 
-def select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any]:
+def candidate_counts(candidates: list[dict[str, Any]]) -> tuple[dict[str, int], dict[str, int]]:
     result_counts: dict[str, int] = {}
     sql_counts: dict[str, int] = {}
     for candidate in candidates:
@@ -108,8 +141,11 @@ def select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any]:
             sql_counts[candidate["normalized_prediction"]] = (
                 sql_counts.get(candidate["normalized_prediction"], 0) + 1
             )
+    return result_counts, sql_counts
 
-    architecture_priority = {
+
+def architecture_priority(candidate: dict[str, Any]) -> int:
+    priorities = {
         "rich_context": 4,
         "decompose": 3,
         "query_plan": 2,
@@ -117,15 +153,51 @@ def select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any]:
         "schema_aware": 0,
         "direct": 0,
     }
+    return priorities.get(candidate.get("architecture", ""), 0)
+
+
+def select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any]:
+    result_counts, sql_counts = candidate_counts(candidates)
 
     def score(candidate: dict[str, Any]) -> tuple[int, int, int, int]:
         executable_score = 1 if candidate.get("executable") is True else 0
         result_score = result_counts.get(candidate.get("result_signature", ""), 0)
         sql_score = sql_counts.get(candidate.get("normalized_prediction", ""), 0)
-        priority_score = architecture_priority.get(candidate.get("architecture", ""), 0)
+        priority_score = architecture_priority(candidate)
         return executable_score, result_score, sql_score, priority_score
 
     return max(candidates, key=score)
+
+
+def select_candidate_value_aware(candidates: list[dict[str, Any]]) -> dict[str, Any]:
+    result_counts, sql_counts = candidate_counts(candidates)
+    viable = [
+        candidate
+        for candidate in candidates
+        if candidate.get("executable") is True
+        and candidate.get("result_signature")
+        and not candidate.get("result_degenerate")
+    ]
+    if not viable:
+        return select_candidate(candidates)
+
+    def score(candidate: dict[str, Any]) -> tuple[int, int, int, int, int]:
+        result_score = result_counts.get(candidate.get("result_signature", ""), 0)
+        sql_score = sql_counts.get(candidate.get("normalized_prediction", ""), 0)
+        priority_score = architecture_priority(candidate)
+        row_count = int(candidate.get("result_row_count") or 0)
+        has_nonempty_sql = 1 if candidate.get("normalized_prediction") else 0
+        return result_score, sql_score, priority_score, has_nonempty_sql, row_count
+
+    return max(viable, key=score)
+
+
+def select_candidate_by_strategy(candidates: list[dict[str, Any]], strategy: str) -> dict[str, Any]:
+    if strategy == "value_aware_voting":
+        return select_candidate_value_aware(candidates)
+    if strategy == "execution_consistency":
+        return select_candidate(candidates)
+    raise ValueError(f"Unknown selection strategy: {strategy}")
 
 
 def parse_architectures(value: str) -> list[str]:
@@ -150,6 +222,11 @@ def main() -> None:
     parser.add_argument("--samples-per-architecture", type=int, default=1)
     parser.add_argument("--temperature", type=float, default=0.35)
     parser.add_argument("--top-p", type=float, default=0.95)
+    parser.add_argument(
+        "--selection-strategy",
+        choices=("execution_consistency", "value_aware_voting"),
+        default="execution_consistency",
+    )
     parser.add_argument("--max-examples", type=int, default=None)
     args = parser.parse_args()
 
@@ -179,20 +256,19 @@ def main() -> None:
     for row in tqdm(rows, desc="Running multi-path NL2SQL"):
         candidates = []
         for architecture in architectures:
-            for sample_index in range(args.samples_per_architecture):
-                candidate = generate_candidate(
-                    model=model,
-                    tokenizer=tokenizer,
-                    row=row,
-                    architecture=architecture,
-                    max_new_tokens=int(generation.get("max_new_tokens", 512)),
-                    temperature=args.temperature,
-                    top_p=args.top_p,
-                    sample_index=sample_index,
-                )
+            for candidate in generate_candidates(
+                model=model,
+                tokenizer=tokenizer,
+                row=row,
+                architecture=architecture,
+                max_new_tokens=int(generation.get("max_new_tokens", 512)),
+                temperature=args.temperature,
+                top_p=args.top_p,
+                sample_count=args.samples_per_architecture,
+            ):
                 candidates.append(annotate_execution(candidate, row.get("db_path", "")))
 
-        selected = select_candidate(candidates)
+        selected = select_candidate_by_strategy(candidates, args.selection_strategy)
         predictions.append(
             {
                 "id": row["id"],
@@ -202,6 +278,7 @@ def main() -> None:
                 "prediction": selected["prediction"],
                 "selected_architecture": selected["architecture"],
                 "selected_sample_index": selected["sample_index"],
+                "selection_strategy": args.selection_strategy,
                 "candidates": candidates,
             }
         )

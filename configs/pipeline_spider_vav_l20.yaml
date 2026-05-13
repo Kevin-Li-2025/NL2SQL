@@ -1,0 +1,23 @@
+extends: configs/model_qwen25_coder_7b_l20_mfu.yaml
+
+experiment:
+  name: spider_vav_l20
+  architecture: rich_context
+
+generation:
+  max_new_tokens: 1024
+  temperature: 1.0
+  top_p: 0.95
+
+pipeline:
+  architectures:
+    - rich_context
+    - query_plan
+    - skeleton
+  samples_per_architecture: 10
+  temperature: 1.0
+  top_p: 0.95
+  selector: value_aware_voting
+
+data:
+  eval_file: data/processed/spider_dev.jsonl

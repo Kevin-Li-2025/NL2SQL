@@ -1,0 +1,20 @@
+output_dir: evals/sota
+skip_missing: false
+
+benchmarks:
+  - name: spider_dev_vav_n30
+    input: data/processed/spider_dev.jsonl
+    mode: pipeline
+    pipeline_config: configs/pipeline_spider_vav_l20.yaml
+    only_architectures:
+      - rich_context
+    architectures:
+      - rich_context
+      - query_plan
+      - skeleton
+    samples_per_architecture: 10
+    temperature: 1.0
+    top_p: 0.95
+    selection_strategy: value_aware_voting
+    execute: true
+    export_spider: true

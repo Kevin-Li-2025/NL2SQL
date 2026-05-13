@@ -126,6 +126,8 @@ def run_prediction(
             command.extend(["--temperature", str(benchmark["temperature"])])
         if benchmark.get("top_p") is not None:
             command.extend(["--top-p", str(benchmark["top_p"])])
+        if benchmark.get("selection_strategy") is not None:
+            command.extend(["--selection-strategy", str(benchmark["selection_strategy"])])
         if max_examples is not None:
             command.extend(["--max-examples", str(max_examples)])
         run_command(command)
