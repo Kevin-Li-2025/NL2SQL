@@ -27,20 +27,63 @@ def collect_value_hints(
     max_hints: int = 32,
     max_per_column: int = 3,
     max_value_length: int = 80,
+    candidate_tables: list[str] | None = None,
+    candidate_columns: list[str] | None = None,
+    max_query_tokens: int = 8,
 ) -> dict[str, list[str]]:
     db_path = Path(db_path)
     if not db_path.exists() or max_hints <= 0:
         return {}
 
-    query_tokens = tokenize(f"{question} {evidence}")
+    query_tokens = {
+        token
+        for token in tokenize(f"{question} {evidence}")
+        if len(token) >= 3
+        and token
+        not in {
+            "the",
+            "and",
+            "for",
+            "with",
+            "that",
+            "this",
+            "what",
+            "which",
+            "where",
+            "when",
+            "who",
+            "how",
+            "are",
+            "was",
+            "were",
+            "from",
+            "count",
+            "number",
+        }
+    }
     if not query_tokens:
         return {}
+    ordered_tokens = sorted(query_tokens, key=lambda token: (len(token), token), reverse=True)[
+        :max_query_tokens
+    ]
+
+    candidate_tables_set = set(candidate_tables or [])
+    candidate_columns_set = set(candidate_columns or [])
+    if candidate_tables_set or candidate_columns_set:
+        columns = [
+            column
+            for column in schema.columns
+            if f"{column.table}.{column.name}" in candidate_columns_set
+            or column.table in candidate_tables_set
+        ]
+    else:
+        columns = list(schema.columns)
 
     hints: dict[str, list[str]] = defaultdict(list)
     uri = f"file:{db_path}?mode=ro"
     connection = sqlite3.connect(uri, uri=True)
     try:
-        for column in schema.columns:
+        for column in columns:
             if len(hints) >= max_hints:
                 break
             if not _is_searchable_type(column.dtype):
@@ -49,9 +92,7 @@ def collect_value_hints(
             full_name = f"{column.table}.{column.name}"
             table_sql = quote_sqlite_identifier(column.table)
             column_sql = quote_sqlite_identifier(column.name)
-            for token in sorted(query_tokens, key=len, reverse=True):
-                if len(token) < 3:
-                    continue
+            for token in ordered_tokens:
                 try:
                     rows = connection.execute(
                         f"SELECT DISTINCT {column_sql} FROM {table_sql} "

@@ -30,6 +30,22 @@ benchmarks:
     mode: infer
     execute: true
 
+  - name: bird_mini_dev_mcr
+    input: data/processed/bird_mini_dev.jsonl
+    mode: pipeline
+    pipeline_config: configs/pipeline_mcr_l20.yaml
+    only_architectures:
+      - rich_context
+    architectures:
+      - rich_context
+      - decompose
+      - query_plan
+      - skeleton
+    samples_per_architecture: 2
+    temperature: 0.35
+    top_p: 0.95
+    execute: true
+
   - name: bird_dev
     input: data/processed/bird_dev.jsonl
     mode: infer

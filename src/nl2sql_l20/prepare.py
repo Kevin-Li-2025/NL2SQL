@@ -77,6 +77,8 @@ def _bird_split_file(bird_dir: Path, split: str) -> Path:
     candidates = [
         bird_dir / split / f"{split}.json",
         bird_dir / f"{split}.json",
+        bird_dir / f"{split}_sqlite.json",
+        bird_dir / f"{split}_data_sqlite.json",
         bird_dir / f"{split}_data.json",
         bird_dir / f"{split}_filtered.json",
     ]
@@ -90,6 +92,8 @@ def _bird_db_root(bird_dir: Path, split: str) -> Path:
     candidates = [
         bird_dir / split / f"{split}_databases",
         bird_dir / f"{split}_databases",
+        bird_dir / "dev_databases",
+        bird_dir / "databases",
         bird_dir / "database",
         bird_dir,
     ]
@@ -155,7 +159,15 @@ def make_record(
         raise ValueError(f"Missing SQL for {benchmark}:{split}:{index}")
     links = links or {"tables": [], "columns": []}
     value_hints = (
-        collect_value_hints(db_path, schema, question, evidence, max_hints=max_value_hints)
+        collect_value_hints(
+            db_path,
+            schema,
+            question,
+            evidence,
+            max_hints=max_value_hints,
+            candidate_tables=links.get("tables"),
+            candidate_columns=links.get("columns"),
+        )
         if db_path
         else {}
     )

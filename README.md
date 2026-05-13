@@ -151,6 +151,24 @@ data/processed/spider_train_no_value_hints.jsonl
 data/processed/spider_dev.jsonl
 ```
 
+## Prepare BIRD Mini-Dev
+
+Download and unpack the BIRD Mini-Dev SQLite package so that
+`mini_dev_sqlite.json` and `dev_databases/` are under the same directory, then run:
+
+```bash
+bash scripts/prepare_bird.sh data/raw/bird_mini_dev/minidev/MINIDEV mini_dev
+```
+
+This writes:
+
+```text
+data/processed/bird_mini_dev.jsonl
+```
+
+The prepared records include schema links, evidence, M-Schema text, database paths, and
+matched value hints for BIRD Mini-Dev execution evaluation.
+
 ## Train
 
 Direct baseline:
