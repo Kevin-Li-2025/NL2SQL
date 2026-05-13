@@ -1,0 +1,19 @@
+extends: configs/model_qwen25_coder_7b_l20_mfu.yaml
+
+experiment:
+  name: mcr_sql_l20
+  architecture: rich_context
+
+pipeline:
+  architectures:
+    - rich_context
+    - decompose
+    - query_plan
+    - skeleton
+  samples_per_architecture: 2
+  temperature: 0.35
+  top_p: 0.95
+  selector: execution_consistency
+
+data:
+  eval_file: data/processed/spider_dev.jsonl

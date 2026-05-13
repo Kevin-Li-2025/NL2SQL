@@ -1,0 +1,13 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:04<00:12,  4.23s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:08<00:08,  4.40s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:12<00:04,  4.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.17s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.58s/it]
+/home/hhai/nl2sql-l20/nl2sql_l20/train_lora.py:237: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `Trainer.__init__`. Use `processing_class` instead.
+  trainer = Trainer(
+The model is already on multiple devices. Skipping the move to device specified in `args`.
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+trainable params: 80,740,352 || all params: 7,696,356,864 || trainable%: 1.0491
+  0%|          | 0/80 [00:00<?, ?it/s]  1%|▏         | 1/80 [01:19<1:44:11, 79.13s/it]  2%|▎         | 2/80 [02:36<1:41:11, 77.84s/it]  4%|▍         | 3/80 [03:52<1:39:20, 77.41s/it]  5%|▌         | 4/80 [05:09<1:37:49, 77.23s/it][perf] step=5 tok/s=1597.0 dense_mfu=0.611 lora_mfu=0.407
+  6%|▋         | 5/80 [06:26<1:36:24, 77.13s/it]                                                  6%|▋         | 5/80 [06:26<1:36:24, 77.13s/it]  8%|▊         | 6/80 [07:43<1:35:02, 77.06s/it]  9%|▉         | 7/80 [09:00<1:33:42, 77.02s/it] 10%|█         | 8/80 [10:17<1:32:23, 76.99s/it] 11%|█▏        | 9/80 [11:34<1:31:06, 76.99s/it]{'loss': 0.1224, 'grad_norm': 0.08462949842214584, 'learning_rate': 0.0001999167799344583, 'epoch': 0.11}
+[perf] step=10 tok/s=1596.4 dense_mfu=0.610 lora_mfu=0.407
+ 12%|█▎        | 10/80 [12:51<1:29:48, 76.98s/it]                                                  12%|█▎        | 10/80 [12:51<1:29:48, 76.98s/it] 14%|█▍        | 11/80 [14:08<1:28:31, 76.98s/it] 15%|█▌        | 12/80 [15:25<1:27:13, 76.96s/it] 16%|█▋        | 13/80 [16:42<1:25:56, 76.96s/it] 18%|█▊        | 14/80 [17:59<1:24:40, 76.97s/it]{'loss': 0.0613, 'grad_norm': 0.06015349552035332, 'learning_rate': 0.00019701859555740648, 'epoch': 0.21}
+[perf] step=15 tok/s=1595.7 dense_mfu=0.610 lora_mfu=0.407
+ 19%|█▉        | 15/80 [19:16<1:23:23, 76.98s/it]                                                  19%|█▉        | 15/80 [19:16<1:23:23, 76.98s/it] 20%|██        | 16/80 [20:33<1:22:06, 76.98s/it] 21%|██▏       | 17/80 [21:50<1:20:49, 76.97s/it] 22%|██▎       | 18/80 [23:07<1:19:32, 76.97s/it]

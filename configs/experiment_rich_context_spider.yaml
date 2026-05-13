@@ -1,0 +1,26 @@
+extends: configs/model_qwen25_coder_7b_l20.yaml
+
+experiment:
+  name: rich_context_spider_qwen25_coder_7b
+  architecture: rich_context
+
+data:
+  train_file: data/processed/spider_train_no_value_hints.jsonl
+  eval_file: data/processed/spider_dev.jsonl
+
+training:
+  output_dir: outputs/rich_context_spider_qwen25_coder_7b
+  max_seq_length: 8192
+  num_train_epochs: 2
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 16
+  learning_rate: 0.0002
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  logging_steps: 10
+  eval_steps: 250
+  save_steps: 250
+  save_total_limit: 2
+  gradient_checkpointing: true
+  bf16: true

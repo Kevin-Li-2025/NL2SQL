@@ -1,0 +1,38 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Datasets and local artifacts.
+data/raw/
+data/processed/*.jsonl
+outputs/
+checkpoints/
+runs/
+wandb/
+evals/*.json
+evals/*.jsonl
+evals/after_train/
+evals/spider_official/
+
+# Model weights.
+*.safetensors
+*.bin
+*.gguf
+
+# Security
+.ssh/
+
+# Personal
+Resume_*.md
+UK_New_Grad_*.md
+Workday_ATS_*.md
+Yin_Li_*.md
+Yin_Li_*.pdf
+Yin_Li_*.tex

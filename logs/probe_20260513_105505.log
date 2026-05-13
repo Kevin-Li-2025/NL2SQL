@@ -1,0 +1,150 @@
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 92c3db70-8d76-4e79-abbf-bfee22930a74)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: fbe083e8-31ab-4d93-bf5d-fc11598c2fd7)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 0dd8d296-9951-468f-81e9-f33aa4a46940)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: a7efd61a-92f4-49b2-b5c4-884009ef5798)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: f8a27d64-357b-4295-9416-923853ec07c0)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 0f2576f8-bcfa-4db3-8384-ca3b3e927f11)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/tokenizer_config.json
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 9b5aac4f-298f-4028-8a64-897e73cdb0be)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 8bd52f25-4a80-44f5-96a7-52364da3904b)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: ef5f39dc-1536-44c1-881c-d09036884ff4)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 0573f4fe-9e57-40fd-a715-45077bdad42b)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 9fa8037c-2051-4df4-82a7-261cec0f92a6)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 8c8624a2-e580-4e57-82ec-a1f88bbdf948)')' thrown while requesting HEAD https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json
+Traceback (most recent call last):
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+OSError: [Errno 101] Network is unreachable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 1106, in _validate_conn
+    conn.connect()
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 759, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 219, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: HTTPSConnection(host='huggingface.co', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/requests/adapters.py", line 696, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/urllib3/util/retry.py", line 543, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host='huggingface.co', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1550, in _get_metadata_or_catch_error
+    metadata = get_hf_file_metadata(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1467, in get_hf_file_metadata
+    r = _request_wrapper(
+        ^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 283, in _request_wrapper
+    response = _request_wrapper(
+               ^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 306, in _request_wrapper
+    response = http_backoff(method=method, url=url, **params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 326, in http_backoff
+    raise err
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 307, in http_backoff
+    response = session.request(method=method, url=url, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/requests/sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/requests/sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 96, in send
+    return super().send(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/requests/adapters.py", line 729, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: (MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /Qwen/Qwen2.5-Coder-7B-Instruct/resolve/main/config.json (Caused by NewConnectionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable"))'), '(Request ID: 8c8624a2-e580-4e57-82ec-a1f88bbdf948)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 479, in cached_files
+    hf_hub_download(
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1014, in hf_hub_download
+    return _hf_hub_download_to_cache_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1121, in _hf_hub_download_to_cache_dir
+    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1665, in _raise_on_head_call_error
+    raise LocalEntryNotFoundError(
+huggingface_hub.errors.LocalEntryNotFoundError: An error happened while trying to locate the file on the Hub and we cannot find the requested files in the local cache. Please check your connection and try again or make sure your Internet connection is on.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/hhai/nl2sql-l20/nl2sql_l20/train_lora.py", line 277, in <module>
+    main()
+  File "/home/hhai/nl2sql-l20/nl2sql_l20/train_lora.py", line 188, in main
+    tokenizer = load_tokenizer(
+                ^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/nl2sql_l20/modeling.py", line 26, in load_tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=trust_remote_code)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 1109, in from_pretrained
+    config = AutoConfig.from_pretrained(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/models/auto/configuration_auto.py", line 1332, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 662, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 721, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 322, in cached_file
+    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hhai/nl2sql-l20/.venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 553, in cached_files
+    raise OSError(
+OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Check your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.

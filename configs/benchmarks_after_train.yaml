@@ -1,0 +1,58 @@
+output_dir: evals/after_train
+skip_missing: true
+
+benchmarks:
+  - name: spider_dev
+    input: data/processed/spider_dev.jsonl
+    mode: infer
+    execute: true
+    export_spider: true
+
+  - name: spider_dev_mcr
+    input: data/processed/spider_dev.jsonl
+    mode: pipeline
+    pipeline_config: configs/pipeline_mcr_l20.yaml
+    only_architectures:
+      - rich_context
+    architectures:
+      - rich_context
+      - decompose
+      - query_plan
+      - skeleton
+    samples_per_architecture: 2
+    temperature: 0.35
+    top_p: 0.95
+    execute: true
+    export_spider: true
+
+  - name: bird_mini_dev
+    input: data/processed/bird_mini_dev.jsonl
+    mode: infer
+    execute: true
+
+  - name: bird_dev
+    input: data/processed/bird_dev.jsonl
+    mode: infer
+    execute: true
+
+  - name: bird_dev_mcr
+    input: data/processed/bird_dev.jsonl
+    mode: pipeline
+    pipeline_config: configs/pipeline_mcr_l20.yaml
+    only_architectures:
+      - rich_context
+    architectures:
+      - rich_context
+      - decompose
+      - query_plan
+      - skeleton
+    samples_per_architecture: 2
+    temperature: 0.35
+    top_p: 0.95
+    execute: true
+
+  - name: livesqlbench_base_lite
+    input: data/processed/livesqlbench_base_lite.jsonl
+    mode: infer
+    architecture: rich_context
+    execute: true

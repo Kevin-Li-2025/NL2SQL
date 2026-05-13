@@ -1,0 +1,10 @@
+extends: configs/experiment_rich_context_spider_l20_mfu.yaml
+
+experiment:
+  name: rich_context_spider_qwen25_coder_7b_l20_mfu_probe
+
+training:
+  output_dir: outputs/rich_context_spider_qwen25_coder_7b_l20_mfu_probe
+  max_steps: 80
+  save_steps: 80
+  eval_steps: 80

@@ -1,0 +1,36 @@
+model:
+  base_model: Qwen/Qwen2.5-Coder-7B-Instruct
+  torch_dtype: bfloat16
+  load_in_4bit: true
+  trust_remote_code: true
+  device_map: auto
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+generation:
+  max_new_tokens: 512
+  temperature: 0.0
+  top_p: 1.0
+
+performance:
+  enable_tf32: true
+  float32_matmul_precision: high
+  mfu:
+    enabled: true
+    target: 0.60
+    gpu_peak_tflops: 119.5
+    dense_flop_multiplier: 6.0
+    lora_flop_multiplier: 4.0
+    warmup_steps: 5
+    print_steps: 10
