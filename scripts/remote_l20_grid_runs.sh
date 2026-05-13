@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WAIT_FOR_SESSION="${WAIT_FOR_SESSION:-nl2sql_followup}"
 BENCHMARK_SUITE="${BENCHMARK_SUITE:-configs/benchmarks_after_train.yaml}"
+WAIT_FOR_SESSION="${WAIT_FOR_SESSION:-nl2sql_followup}"
+WAIT_FOR_DIRECT_SUMMARY="${WAIT_FOR_DIRECT_SUMMARY:-evals/after_train/direct_spider_qwen25_coder_7b_l20_mfu/summary.json}"
+STOP_WAIT_SESSION_AFTER_DIRECT="${STOP_WAIT_SESSION_AFTER_DIRECT:-1}"
 RICH_CONTEXT_CONFIG="${RICH_CONTEXT_CONFIG:-configs/experiment_rich_context_spider_l20_mfu.yaml}"
 RICH_CONTEXT_ADAPTER="${RICH_CONTEXT_ADAPTER:-outputs/rich_context_spider_qwen25_coder_7b_l20_mfu}"
 
@@ -19,12 +21,38 @@ mkdir -p logs
 GRID_LOG="${GRID_LOG:-logs/remote_l20_grid_runs_$(timestamp).log}"
 exec > >(tee -a "$GRID_LOG") 2>&1
 
-echo "[grid] Waiting for tmux session '${WAIT_FOR_SESSION}' to finish."
-while tmux has-session -t "$WAIT_FOR_SESSION" 2>/dev/null; do
+echo "[grid] Waiting for direct Spider/BIRD summary at ${WAIT_FOR_DIRECT_SUMMARY}."
+while true; do
+  if python - "$WAIT_FOR_DIRECT_SUMMARY" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.exists():
+    raise SystemExit(1)
+summary = json.loads(path.read_text())
+benchmarks = summary.get("benchmarks", {})
+required = ["spider_dev", "bird_mini_dev"]
+if all(benchmarks.get(name, {}).get("status") == "completed" for name in required):
+    raise SystemExit(0)
+raise SystemExit(1)
+PY
+  then
+    echo "[grid] Direct Spider/BIRD summary is complete."
+    break
+  fi
   nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,power.draw \
     --format=csv,noheader,nounits || true
   sleep 120
 done
+
+if [[ "$STOP_WAIT_SESSION_AFTER_DIRECT" == "1" ]]; then
+  if tmux has-session -t "$WAIT_FOR_SESSION" 2>/dev/null; then
+    echo "[grid] Stopping ${WAIT_FOR_SESSION} after direct results to prioritize requested grid."
+    tmux kill-session -t "$WAIT_FOR_SESSION"
+  fi
+fi
 
 source .venv/bin/activate
 
