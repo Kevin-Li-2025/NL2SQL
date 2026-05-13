@@ -10,7 +10,7 @@ public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU
 
 ## Result Snapshot
 
-Latest validated remote run snapshot: `2026-05-13 21:48 +08:00`.
+Latest validated remote run snapshot: `2026-05-13 23:58 +08:00`.
 
 | Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
 | --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
@@ -20,6 +20,8 @@ Latest validated remote run snapshot: `2026-05-13 21:48 +08:00`.
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 1.20% | 37.40% |
+| BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 0.60% | 37.20% |
+| BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 0.60% | 39.20% |
 
 The Spider numbers above are local normalized exact match and SQLite execution accuracy,
 not yet claimed as official Spider leaderboard numbers. Official Spider evaluator export
@@ -27,9 +29,10 @@ files are generated under `spider_official/`; checked-in official evaluator stdo
 be added before making paper-style comparisons.
 
 BIRD Mini-Dev is intentionally shown as out-of-domain transfer from Spider-trained
-adapters. The `schema_aware` run improves BIRD Mini-Dev execution accuracy from 21.60% to
-37.40%, but rich-context and MCR BIRD Mini-Dev runs are still needed before claiming a
-strong BIRD result.
+adapters. The best current BIRD Mini-Dev run is `MCR-SQL-L20` at 39.20% execution
+accuracy. This is a clear robustness gain over direct transfer, but it is still not a
+strong BIRD result; the next work item is learned candidate repair and better value
+grounding.
 
 The first experiment keeps the base model fixed:
 
@@ -172,10 +175,13 @@ BIRD Mini-Dev results:
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `direct` single-path | 0.80% | 21.60% | 80.00% | 20.00% | 12.40% |
 | `schema_aware` single-path | 1.20% | 37.40% | 85.00% | 15.00% | 8.40% |
+| `rich_context` single-path | 0.60% | 37.20% | 83.40% | 16.60% | 10.80% |
+| `MCR-SQL-L20` multi-path | 0.60% | 39.20% | 93.20% | 6.80% | 4.80% |
 
-The schema-aware BIRD run improves execution accuracy by `+15.80` points over direct,
-with fewer execution errors and fewer schema hallucinations. Rich-context and MCR BIRD
-runs are still in the remote queue.
+The MCR BIRD run improves execution accuracy by `+17.60` points over direct and `+2.00`
+points over rich-context single-path. More importantly, it cuts execution errors from
+`16.60%` to `6.80%` and schema hallucinations from `10.80%` to `4.80%` versus the
+rich-context single-path run.
 
 Comparison boundaries:
 
@@ -375,8 +381,8 @@ The first meaningful result should be a table like this:
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | 1.20% | 37.40% |
-| Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | TBD | TBD |
-| Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | TBD | TBD |
+| Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | 0.60% | 37.20% |
+| Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | BIRD Mini-Dev | 0.60% | 39.20% |
 
 ## Evidence And Limits
 
@@ -388,9 +394,9 @@ The first meaningful result should be a table like this:
   this repo's training setup, demonstrating strong single-L20 training efficiency in this
   experimental setup.
 - **Current Gap**: BIRD Mini-Dev direct transfer is weak at 21.60% execution accuracy,
-  and schema-aware transfer improves it to 37.40%. This should still not be read as a
-  strong BIRD result until rich-context retrieval, value grounding, and MCR selection are
-  evaluated.
+  and MCR improves it to 39.20%. This should still not be read as a strong BIRD result;
+  the gap is now mostly value grounding, database-specific schema linking, and learned
+  candidate repair rather than raw executability.
 
 See [docs/ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md),
 [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md), and
