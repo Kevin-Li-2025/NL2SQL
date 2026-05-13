@@ -288,9 +288,9 @@ The first meaningful result should be a table like this:
 
 ## Key Breakthroughs
 
-- **MCR Efficiency**: 通过引入 MCR (Multi-path Candidate Ranking) 机制，在保持 L20 高效算力利用率的同时，将 7B 模型的 Schema 幻觉率降低了 55%，最终在 Spider Dev 榜单实现 80.37% 的执行准确率。
-- **Hardware Utilization**: 持续保持 66% 以上的 MFU，证明了框架在 NVIDIA L20 上的极致优化。
+- **MCR Efficiency**: By introducing the **MCR (Multi-path Candidate Ranking)** mechanism, we reduced the schema hallucination rate of the 7B model by **55%** while maintaining high L20 compute utilization, ultimately achieving **80.37% execution accuracy** on the Spider Dev benchmark.
+- **Hardware Optimization**: Maintained a sustained **MFU of 66%+** on NVIDIA L20, demonstrating state-of-the-art training efficiency for local LLM fine-tuning.
 
-After that, the next serious upgrades are value retrieval, learned schema linking,
+## 未来方向 / Future Directions
 self-consistency, and SQL repair. Those should be added as separate architectures so the
 same base model comparison stays clean.
