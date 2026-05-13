@@ -270,18 +270,3 @@ The first meaningful result should be a table like this:
 After that, the next serious upgrades are value retrieval, learned schema linking,
 self-consistency, and SQL repair. Those should be added as separate architectures so the
 same base model comparison stays clean.
-
-## Performance & Competitive Analysis
-
-### Accuracy Standing (Spider Dev)
-The `rich_context` architecture with **Qwen2.5-Coder-7B-Instruct** achieves **78.72% Execution Accuracy**. 
-- **Improvement**: This is a **~30% jump** over baseline zero-shot performance for similar-sized models.
-- **Efficiency**: It reaches near-GPT-4 levels of SQL reasoning while remaining a single-pass, locally deployable 7B model.
-
-### Hardware Efficiency (L20 Optimization)
-Optimization for the NVIDIA L20 GPU is a core focus of this repository:
-- **MFU (Model Flops Utilization)**: Achieved **66.34%** (Target: 60%).
-- **Throughput**: **1734 tokens/sec** on 1x L20.
-- **Key Techniques**: Data packing, optimized QLoRA configs, and efficient schema serialization.
-
-This makes the framework highly suitable for production environments where training cost and inference latency are critical.
