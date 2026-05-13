@@ -1,0 +1,15 @@
+{
+  "candidate_budget": 30,
+  "estimated_wall_clock_seconds": 8903.0,
+  "executable_rate": 0.9961315280464217,
+  "execution_error_rate": 0.0038684719535783366,
+  "local_normalized_exact": 0.5203094777562862,
+  "local_sqlite_execution_accuracy": 0.8210831721470019,
+  "official_spider_exact_match": 0.785,
+  "official_spider_execution_accuracy": 0.819,
+  "schema_hallucination_rate": 0.005802707930367505,
+  "selection_strategy": "value_aware_voting",
+  "subset_policy": "balanced",
+  "total_candidates": 31020,
+  "total_examples": 1034
+}

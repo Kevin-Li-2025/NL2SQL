@@ -1,0 +1,24 @@
+extends: configs/model_qwen25_coder_7b_l20_mfu.yaml
+
+experiment:
+  name: bird_egs_l20
+  architecture: rich_context
+
+generation:
+  max_new_tokens: 1024
+  temperature: 0.85
+  top_p: 0.95
+
+pipeline:
+  architectures:
+    - rich_context
+    - execution_first
+    - query_plan
+    - skeleton
+  samples_per_architecture: 4
+  temperature: 0.85
+  top_p: 0.95
+  selector: execution_guided_rerank
+
+data:
+  eval_file: data/processed/bird_mini_dev.jsonl

@@ -53,3 +53,32 @@ The runtime includes model generation, SQLite candidate execution annotation,
 value-aware selection, and prediction JSONL writing. It excludes queue waiting time before
 the VAV command started. Continuous power logging was not captured during the VAV command,
 so this repo reports GPU-hours rather than energy in kWh for this run.
+
+## Retrospective Candidate-Budget Curve
+
+The saved n=30 candidate pool can be re-selected with lower balanced candidate budgets.
+This is not a fresh lower-budget generation run; it is a selector and cost analysis using
+the same candidates already generated for the n=30 run. It answers a specific question:
+how much of the final accuracy depends on seeing all 30 candidates?
+
+Artifacts:
+
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/summary.json`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/*/results.json`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/*/spider_official/evaluation_stdout.txt`
+
+Curve:
+
+| Budget | Total candidates | Local EX | Official EX | Official EM | Estimated one-L20 wall-clock |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 4 | 4,136 | 82.59% | 82.20% | 78.10% | 19:47 |
+| 8 | 8,272 | 82.30% | 82.00% | 78.60% | 39:34 |
+| 12 | 12,408 | 82.21% | 82.00% | 78.10% | 59:21 |
+| 16 | 16,544 | 82.30% | 82.00% | 78.40% | 1:19:08 |
+| 30 | 31,020 | 82.11% | 81.90% | 78.50% | 2:28:23 |
+
+The n=4 retrospective subset is the strongest Spider official execution result currently
+checked in. The result is also a warning against brute-force scaling: after the selector
+has diverse candidates, adding more samples can add plausible but wrong SQL and slightly
+hurt execution accuracy. The next cost-aware direction is a learned selector that reaches
+the n=4/n=8 band consistently without depending on a large candidate pool.

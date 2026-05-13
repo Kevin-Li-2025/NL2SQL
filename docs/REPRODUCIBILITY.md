@@ -168,6 +168,24 @@ Each benchmark folder includes `predictions.jsonl` and `results.json`; Spider fo
 include `spider_official/gold.txt` and `spider_official/pred.txt`. Headline Spider
 numbers should also include `spider_official/evaluation_stdout.txt` when available.
 
+For retrospective candidate-budget analysis from a saved multi-candidate prediction file:
+
+```bash
+nl2sql-cost-curve \
+  --gold data/processed/spider_dev.jsonl \
+  --pred evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/predictions.jsonl \
+  --out-dir evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve \
+  --budgets 4,8,12,16,30 \
+  --selection-strategy value_aware_voting \
+  --subset-policy balanced \
+  --source-budget 30 \
+  --source-seconds 8903 \
+  --export-spider
+```
+
+This curve re-selects from already-generated candidates. Treat it as selector/cost
+analysis, not as a fresh lower-budget generation run.
+
 ## Fair-Comparison Checklist
 
 When adding a new headline number, record:

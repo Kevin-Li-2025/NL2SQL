@@ -2,7 +2,8 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Spider Dev EX](https://img.shields.io/badge/Spider_dev_EX-82.11%25-brightgreen)
+![Spider Official EX](https://img.shields.io/badge/Spider_official_EX-82.20%25-brightgreen)
+![BIRD Mini-Dev EX](https://img.shields.io/badge/BIRD_MiniDev_EX-39.20%25-yellow)
 ![L20 Dense MFU](https://img.shields.io/badge/L20_dense_MFU-73.22%25-brightgreen)
 
 Reproducible natural-language-to-SQL fine-tuning and multi-path inference benchmarks on
@@ -10,7 +11,7 @@ public Spider/BIRD data using `Qwen2.5-Coder-7B-Instruct` and one NVIDIA L20 GPU
 
 ## Result Snapshot
 
-Latest validated remote run snapshot: `2026-05-14 02:27 +08:00`.
+Latest validated result snapshot: `2026-05-14 04:00 +08:00`.
 
 | Benchmark | Examples | Model / Adapter | Architecture | Input Context | Candidates / Example | Eval Scope | Normalized EM | Execution Acc |
 | --- | ---: | --- | --- | --- | ---: | --- | ---: | ---: |
@@ -19,22 +20,27 @@ Latest validated remote run snapshot: `2026-05-14 02:27 +08:00`.
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 50.48% | 78.72% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 51.06% | 80.37% |
 | Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `VAV-SQL-L20` | value-aware multi-prompt voting | 30 | local SQLite evaluator | 52.03% | 82.11% |
+| Spider dev | 1,034 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `VAV-SQL-L20` cost curve | retrospective balanced subset from n=30 candidates | 4 | local SQLite evaluator | 50.39% | 82.59% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `direct` | full schema | 1 | local SQLite evaluator | 0.80% | 21.60% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `schema_aware` | linked schema + FK hints + evidence | 1 | local SQLite evaluator | 1.20% | 37.40% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `rich_context` | full schema + M-Schema + value hints | 1 | local SQLite evaluator | 0.60% | 37.20% |
 | BIRD Mini-Dev | 500 | Qwen2.5-Coder-7B-Instruct + Spider LoRA | `MCR-SQL-L20` | multi-prompt rich context | 8 | local SQLite evaluator | 0.60% | 39.20% |
 
 The Spider numbers above are local normalized exact match and SQLite execution accuracy,
-not official leaderboard numbers. For the current best `VAV-SQL-L20` run, the upstream
-Spider evaluator stdout is checked in and reports `81.90%` execution accuracy and
-`78.50%` official exact match. The official exact match is a parsed Spider metric and is
-not directly comparable to this repo's strict normalized-string EM.
+not official leaderboard numbers. For the current best retrospective `VAV-SQL-L20` n=4
+candidate subset, the upstream Spider evaluator stdout is checked in and reports `82.20%`
+execution accuracy and `78.10%` official exact match. The official exact match is a parsed
+Spider metric and is not directly comparable to this repo's strict normalized-string EM.
 
 BIRD Mini-Dev is intentionally shown as out-of-domain transfer from Spider-trained
 adapters. The best current BIRD Mini-Dev run is `MCR-SQL-L20` at 39.20% execution
 accuracy. This is a clear robustness gain over direct transfer, but it is still not a
 strong BIRD result; the next work item is learned candidate repair and better value
 grounding.
+
+The claim boundary is deliberate: this is a strong single-L20 research-engineering
+benchmark repo, not a claimed Text-to-SQL SOTA system. Spider is the mature benchmark
+where the pipeline is already competitive; BIRD transfer remains the main research gap.
 
 The first experiment keeps the base model fixed:
 
@@ -56,6 +62,7 @@ repeatable NL2SQL benchmark repo:
 - normalized exact match and SQLite execution comparison
 - export format for the official Spider evaluator
 - checked-in official Spider evaluator stdout and inference cost notes for the best run
+- retrospective candidate-budget curves for cost-aware inference comparison
 
 ## Architectures
 
@@ -169,19 +176,35 @@ Spider dev results:
 | `MCR-SQL-L20` multi-path | 51.06% | 80.37% | 98.07% | 1.93% | 1.74% |
 | `VAV-SQL-L20` n=30 voting | 52.03% | 82.11% | 99.61% | 0.39% | 0.58% |
 
-The current best Spider run is `VAV-SQL-L20`, which improves execution accuracy by `+3.39`
-points over rich-context single-path and `+1.74` points over the 8-candidate MCR run. It
-reduces execution errors to `4` and schema hallucinations to `6` on the full
-1,034-example Spider dev split.
+The current best full-generation Spider run is `VAV-SQL-L20` n=30, which improves
+execution accuracy by `+3.39` points over rich-context single-path and `+1.74` points
+over the 8-candidate MCR run. It reduces execution errors to `4` and schema
+hallucinations to `6` on the full 1,034-example Spider dev split. The retrospective
+cost curve below finds an even better n=4 balanced subset from that saved n=30 candidate
+pool.
 
 Official Spider evaluator for `VAV-SQL-L20`:
 
-| Evaluator | Exact Match | Execution Acc | Easy EX | Medium EX | Hard EX | Extra EX |
+| Run | Exact Match | Execution Acc | Easy EX | Medium EX | Hard EX | Extra EX |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Official Spider `evaluation.py --etype all` | 78.50% | 81.90% | 92.30% | 86.50% | 70.70% | 65.70% |
+| n=30 full VAV | 78.50% | 81.90% | 92.30% | 86.50% | 70.70% | 65.70% |
+| n=4 retrospective balanced subset | 78.10% | 82.20% | 91.50% | 86.30% | 74.10% | 65.70% |
 
-The official stdout is saved at
-`evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/spider_official/evaluation_stdout.txt`.
+The n=4 result is a retrospective re-selection from the saved n=30 candidate pool, not a
+fresh n=4 generation run. It shows that most of the gain comes from candidate diversity
+and selection quality rather than raw candidate count. The official stdout files are
+saved under
+`evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/*/spider_official/`.
+
+VAV candidate-budget curve:
+
+| Budget | Local EX | Official EX | Official EM | Estimated wall-clock on one L20 |
+| ---: | ---: | ---: | ---: | ---: |
+| 4 | 82.59% | 82.20% | 78.10% | 19:47 |
+| 8 | 82.30% | 82.00% | 78.60% | 39:34 |
+| 12 | 82.21% | 82.00% | 78.10% | 59:21 |
+| 16 | 82.30% | 82.00% | 78.40% | 1:19:08 |
+| 30 | 82.11% | 81.90% | 78.50% | 2:28:23 |
 
 BIRD Mini-Dev results:
 
@@ -208,6 +231,10 @@ Comparison boundaries:
   `MCR-SQL-L20` currently uses 8 candidate generations per example in
   `configs/pipeline_mcr_l20.yaml`. `VAV-SQL-L20` uses 30 candidate generations per
   example in `configs/pipeline_spider_vav_l20.yaml`.
+- The VAV cost curve is retrospective: it re-selects from the saved n=30 candidate file
+  with balanced per-architecture candidate budgets. It is valid as a cost/selector
+  analysis, while fresh lower-budget generation runs are still useful for runtime
+  confirmation.
 - Official Spider evaluator export files are saved, but the README reports this repo's
   local normalized EM and SQLite execution metrics in the main tables. The best VAV run
   additionally includes checked-in upstream Spider evaluator stdout.
@@ -237,6 +264,7 @@ Artifacts already saved in the repo snapshot:
 - `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/predictions.jsonl`
 - `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/spider_official/evaluation_stdout.txt`
 - `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_n30/cost_summary.json`
+- `evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/spider_dev_vav_cost_curve/summary.json`
 - `logs/remote_l20_sota_spider_vav_20260513_192853.log`
 - `evals/after_train/rich_context_spider_qwen25_coder_7b_l20_mfu/summary.json`
 - `outputs/rich_context_spider_qwen25_coder_7b_l20_mfu/perf.summary.json`
@@ -403,6 +431,7 @@ The first meaningful result should be a table like this:
 | Qwen2.5-Coder-7B-Instruct | rich_context | Spider dev | 50.48% | 78.72% |
 | Qwen2.5-Coder-7B-Instruct | MCR-SQL-L20 | Spider dev | 51.06% | 80.37% |
 | Qwen2.5-Coder-7B-Instruct | VAV-SQL-L20 | Spider dev | 52.03% | 82.11% |
+| Qwen2.5-Coder-7B-Instruct | VAV-SQL-L20 cost curve n=4 | Spider dev | 50.39% | 82.59% |
 | Qwen2.5-Coder-7B-Instruct | direct | BIRD Mini-Dev | 0.80% | 21.60% |
 | Qwen2.5-Coder-7B-Instruct | schema_aware | BIRD Mini-Dev | 1.20% | 37.40% |
 | Qwen2.5-Coder-7B-Instruct | rich_context | BIRD Mini-Dev | 0.60% | 37.20% |
@@ -419,6 +448,10 @@ The first meaningful result should be a table like this:
   official Spider evaluator reports 81.90% execution accuracy and 78.50% exact match. The
   cost is 30 candidate generations per example, 31,020 total candidates, and 2.47 L20
   GPU-hours for the full Spider dev run.
+- **Cost Curve**: Retrospective balanced re-selection from the saved n=30 candidate pool
+  shows n=4 reaches 82.20% official Spider execution accuracy with an estimated 19:47
+  one-L20 runtime. This motivates fewer candidates plus a smarter selector as the next
+  accuracy/cost direction.
 - **Hardware Optimization**: The completed L20 runs maintain up to 73.22% dense MFU in
   this repo's training setup, demonstrating strong single-L20 training efficiency in this
   experimental setup.
@@ -429,11 +462,14 @@ The first meaningful result should be a table like this:
 
 See [docs/ERROR_ANALYSIS.md](docs/ERROR_ANALYSIS.md),
 [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md),
+[docs/RESEARCH_POSITIONING.md](docs/RESEARCH_POSITIONING.md),
 [docs/INFERENCE_COST.md](docs/INFERENCE_COST.md), and
 [docs/ABLATIONS.md](docs/ABLATIONS.md) for the evidence chain and planned controls.
 
 ## 未来方向 / Future Directions
 
-The current improvement path is EGS, learned candidate repair, pairwise selector training,
-and then optional execution-reward tuning. Each step should stay as a separate architecture
-so the same base model comparison stays clean.
+The current improvement path is BIRD value grounding, EGS, learned candidate repair,
+pairwise selector training, and then optional execution-reward tuning. Each step should
+stay as a separate architecture so the same base model comparison stays clean. The next
+remote queue adds BIRD Mini-Dev VAV n=12 and EGS n=16 after the active Spider EGS and
+candidate-repair runs finish.
