@@ -1,0 +1,52 @@
+{
+  "experiment": "candidate_repair_spider_qwen25_coder_7b_l20_mfu",
+  "architecture": "candidate_repair",
+  "adapter": "outputs/candidate_repair_spider_qwen25_coder_7b_l20_mfu",
+  "suite": "configs/benchmarks_candidate_repair_l20.yaml",
+  "benchmarks": {
+    "spider_dev_repair": {
+      "status": "completed",
+      "input": "data/processed/spider_dev.jsonl",
+      "predictions": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/spider_dev_repair/predictions.jsonl",
+      "results": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/spider_dev_repair/results.json",
+      "metrics": {
+        "total": 1034,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.5009671179883946,
+        "normalized_exact_count": 518,
+        "execution_accuracy": 0.811411992263056,
+        "execution_evaluated": 1034,
+        "executable_rate": 0.9961315280464217,
+        "execution_errors": 4,
+        "execution_error_rate": 0.0038684719535783366,
+        "schema_hallucination_rate": 0.0019342359767891683,
+        "schema_hallucination_count": 2,
+        "missing_predictions": 0
+      },
+      "spider_official": {
+        "gold": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/spider_dev_repair/spider_official/gold.txt",
+        "pred": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/spider_dev_repair/spider_official/pred.txt"
+      }
+    },
+    "bird_mini_dev_repair": {
+      "status": "completed",
+      "input": "data/processed/bird_mini_dev.jsonl",
+      "predictions": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_repair/predictions.jsonl",
+      "results": "evals/sota/candidate_repair_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_repair/results.json",
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.012,
+        "normalized_exact_count": 6,
+        "execution_accuracy": 0.422,
+        "execution_evaluated": 500,
+        "executable_rate": 0.956,
+        "execution_errors": 22,
+        "execution_error_rate": 0.044,
+        "schema_hallucination_rate": 0.024,
+        "schema_hallucination_count": 12,
+        "missing_predictions": 0
+      }
+    }
+  }
+}

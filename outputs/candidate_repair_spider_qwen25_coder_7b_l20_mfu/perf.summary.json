@@ -1,0 +1,8 @@
+{
+  "avg_tail_dense_mfu": 0.6172913500041359,
+  "avg_tail_lora_estimated_mfu": 0.41152756666942397,
+  "avg_tail_tokens_per_second": 1614.3651712079593,
+  "step": 180,
+  "target_met": true,
+  "target_mfu": 0.6
+}

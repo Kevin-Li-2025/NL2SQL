@@ -16,9 +16,11 @@ outputs/
 checkpoints/
 runs/
 wandb/
-evals/*.json
-evals/*.jsonl
-evals/after_train/
+!evals/**/results.json
+!evals/**/summary.json
+!outputs/**/perf.summary.json
+evals/after_train/**
+!evals/after_train/**/
 evals/spider_official/
 
 # Model weights.
