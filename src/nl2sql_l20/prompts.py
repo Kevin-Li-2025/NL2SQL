@@ -45,6 +45,25 @@ EXECUTION_FIRST_SYSTEM = (
     "available. Return only the final SQLite SQL query."
 )
 
+EVIDENCE_FIRST_SYSTEM = (
+    "You are an expert text-to-SQL model for BIRD-style questions. Treat the evidence as a "
+    "formal constraint: translate formulas, aliases, and value definitions from the evidence "
+    "before choosing tables. Then generate one valid SQLite SQL query. Return only the final "
+    "SQL query."
+)
+
+VALUE_GROUNDED_SYSTEM = (
+    "You are an expert text-to-SQL model for value-grounded SQLite generation. Every literal "
+    "filter should come from the question, evidence, or matched database values. Preserve exact "
+    "database value spelling, avoid inventing constants, and return only the final SQL query."
+)
+
+JOIN_PATH_SYSTEM = (
+    "You are an expert text-to-SQL model for cross-domain schemas. First identify the relevant "
+    "tables, columns, and foreign-key join path from the provided schema context; then generate "
+    "the shortest valid SQLite query that answers the question. Return only the final SQL query."
+)
+
 CANDIDATE_REPAIR_SYSTEM = (
     "You are an expert text-to-SQL repair model. You receive a question, schema context, "
     "matched values, and several candidate SQLite queries with execution feedback. Select, "
@@ -60,6 +79,9 @@ ARCHITECTURES = (
     "query_plan",
     "skeleton",
     "execution_first",
+    "evidence_first",
+    "value_grounded",
+    "join_path",
     "candidate_repair",
 )
 
@@ -177,6 +199,24 @@ def build_messages(row: dict[str, Any], architecture: str) -> list[dict[str, str
     if architecture == "execution_first":
         return [
             {"role": "system", "content": EXECUTION_FIRST_SYSTEM},
+            {"role": "user", "content": _rich_user_content(row)},
+        ]
+
+    if architecture == "evidence_first":
+        return [
+            {"role": "system", "content": EVIDENCE_FIRST_SYSTEM},
+            {"role": "user", "content": _rich_user_content(row)},
+        ]
+
+    if architecture == "value_grounded":
+        return [
+            {"role": "system", "content": VALUE_GROUNDED_SYSTEM},
+            {"role": "user", "content": _rich_user_content(row)},
+        ]
+
+    if architecture == "join_path":
+        return [
+            {"role": "system", "content": JOIN_PATH_SYSTEM},
             {"role": "user", "content": _rich_user_content(row)},
         ]
 

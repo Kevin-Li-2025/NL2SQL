@@ -1,0 +1,13 @@
+{
+  "candidate_budget": 4,
+  "total_examples": 500,
+  "total_candidates": 2000,
+  "subset_policy": "balanced",
+  "selection_strategy": "execution_consistency",
+  "estimated_wall_clock_seconds": null,
+  "local_sqlite_execution_accuracy": 0.38,
+  "local_normalized_exact": 0.01,
+  "executable_rate": 0.942,
+  "execution_error_rate": 0.058,
+  "schema_hallucination_rate": 0.038
+}

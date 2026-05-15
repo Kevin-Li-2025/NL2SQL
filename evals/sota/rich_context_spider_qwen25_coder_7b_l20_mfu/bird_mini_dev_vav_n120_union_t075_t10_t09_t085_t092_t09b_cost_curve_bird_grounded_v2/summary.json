@@ -1,0 +1,28 @@
+{
+  "strategy": "bird_grounded_rerank",
+  "subset_policy": "balanced",
+  "source_budget": 120,
+  "source_seconds": null,
+  "budgets": {
+    "n120": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n120_union_t075_t10_t09_t085_t092_t09b_cost_curve_bird_grounded_v2/n120/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n120_union_t075_t10_t09_t085_t092_t09b_cost_curve_bird_grounded_v2/n120/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n120_union_t075_t10_t09_t085_t092_t09b_cost_curve_bird_grounded_v2/n120/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.01,
+        "normalized_exact_count": 5,
+        "execution_accuracy": 0.426,
+        "execution_evaluated": 500,
+        "executable_rate": 0.98,
+        "execution_errors": 10,
+        "execution_error_rate": 0.02,
+        "schema_hallucination_rate": 0.014,
+        "schema_hallucination_count": 7,
+        "missing_predictions": 0
+      }
+    }
+  }
+}

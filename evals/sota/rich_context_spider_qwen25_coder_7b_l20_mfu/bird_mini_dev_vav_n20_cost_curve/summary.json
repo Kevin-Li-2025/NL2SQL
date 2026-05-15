@@ -1,0 +1,108 @@
+{
+  "strategy": "value_aware_voting",
+  "subset_policy": "balanced",
+  "source_budget": 20,
+  "source_seconds": null,
+  "budgets": {
+    "n04": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n04/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n04/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n04/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.008,
+        "normalized_exact_count": 4,
+        "execution_accuracy": 0.406,
+        "execution_evaluated": 500,
+        "executable_rate": 0.95,
+        "execution_errors": 25,
+        "execution_error_rate": 0.05,
+        "schema_hallucination_rate": 0.036,
+        "schema_hallucination_count": 18,
+        "missing_predictions": 0
+      }
+    },
+    "n08": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n08/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n08/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n08/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.008,
+        "normalized_exact_count": 4,
+        "execution_accuracy": 0.444,
+        "execution_evaluated": 500,
+        "executable_rate": 0.972,
+        "execution_errors": 14,
+        "execution_error_rate": 0.028,
+        "schema_hallucination_rate": 0.024,
+        "schema_hallucination_count": 12,
+        "missing_predictions": 0
+      }
+    },
+    "n12": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n12/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n12/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n12/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.008,
+        "normalized_exact_count": 4,
+        "execution_accuracy": 0.454,
+        "execution_evaluated": 500,
+        "executable_rate": 0.972,
+        "execution_errors": 14,
+        "execution_error_rate": 0.028,
+        "schema_hallucination_rate": 0.022,
+        "schema_hallucination_count": 11,
+        "missing_predictions": 0
+      }
+    },
+    "n16": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n16/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n16/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n16/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.006,
+        "normalized_exact_count": 3,
+        "execution_accuracy": 0.47,
+        "execution_evaluated": 500,
+        "executable_rate": 0.976,
+        "execution_errors": 12,
+        "execution_error_rate": 0.024,
+        "schema_hallucination_rate": 0.016,
+        "schema_hallucination_count": 8,
+        "missing_predictions": 0
+      }
+    },
+    "n20": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n20/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n20/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_cost_curve/n20/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.006,
+        "normalized_exact_count": 3,
+        "execution_accuracy": 0.468,
+        "execution_evaluated": 500,
+        "executable_rate": 0.978,
+        "execution_errors": 11,
+        "execution_error_rate": 0.022,
+        "schema_hallucination_rate": 0.016,
+        "schema_hallucination_count": 8,
+        "missing_predictions": 0
+      }
+    }
+  }
+}

@@ -243,7 +243,12 @@ def main() -> None:
     parser.add_argument("--budgets", default="4,8,12,16,30")
     parser.add_argument(
         "--selection-strategy",
-        choices=("execution_consistency", "value_aware_voting", "execution_guided_rerank"),
+        choices=(
+            "execution_consistency",
+            "value_aware_voting",
+            "execution_guided_rerank",
+            "bird_grounded_rerank",
+        ),
         default="value_aware_voting",
     )
     parser.add_argument("--subset-policy", choices=("balanced", "prefix"), default="balanced")

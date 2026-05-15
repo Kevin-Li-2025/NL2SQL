@@ -1,0 +1,28 @@
+{
+  "strategy": "bird_grounded_rerank",
+  "subset_policy": "balanced",
+  "source_budget": 20,
+  "source_seconds": null,
+  "budgets": {
+    "n20": {
+      "predictions": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_t09_cost_curve_bird_grounded_v2/n20/predictions.jsonl",
+      "results": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_t09_cost_curve_bird_grounded_v2/n20/results.json",
+      "cost_summary": "evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_t09_cost_curve_bird_grounded_v2/n20/cost_summary.json",
+      "spider_official": null,
+      "metrics": {
+        "total": 500,
+        "predicted_sql_present_rate": 1.0,
+        "normalized_exact": 0.01,
+        "normalized_exact_count": 5,
+        "execution_accuracy": 0.428,
+        "execution_evaluated": 500,
+        "executable_rate": 0.984,
+        "execution_errors": 8,
+        "execution_error_rate": 0.016,
+        "schema_hallucination_rate": 0.01,
+        "schema_hallucination_count": 5,
+        "missing_predictions": 0
+      }
+    }
+  }
+}

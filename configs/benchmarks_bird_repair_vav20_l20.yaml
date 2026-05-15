@@ -1,0 +1,10 @@
+output_dir: evals/sota
+skip_missing: false
+
+benchmarks:
+  - name: bird_mini_dev_repair_vav20
+    input: data/processed/bird_mini_dev.jsonl
+    mode: repair
+    candidates: evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20/predictions.jsonl
+    max_candidates: 16
+    execute: true

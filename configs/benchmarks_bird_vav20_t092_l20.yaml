@@ -1,0 +1,21 @@
+output_dir: evals/sota
+skip_missing: false
+
+benchmarks:
+  - name: bird_mini_dev_vav_n20_t092
+    input: data/processed/bird_mini_dev.jsonl
+    mode: pipeline
+    pipeline_config: configs/pipeline_bird_egs_l20.yaml
+    only_architectures:
+      - rich_context
+    architectures:
+      - rich_context
+      - execution_first
+      - decompose
+      - query_plan
+      - skeleton
+    samples_per_architecture: 4
+    temperature: 0.92
+    top_p: 0.95
+    selection_strategy: value_aware_voting
+    execute: true

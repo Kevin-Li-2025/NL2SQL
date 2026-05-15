@@ -2,19 +2,22 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 from pathlib import Path
 from typing import Any
 
 from tqdm.auto import tqdm
 
 from nl2sql_l20.config import load_config, require
-from nl2sql_l20.evaluate import schema_violations
+from nl2sql_l20.evaluate import schema_inventory, schema_violations
 from nl2sql_l20.io import read_jsonl, write_jsonl
 from nl2sql_l20.prompts import ARCHITECTURES, apply_chat_template, build_messages
 from nl2sql_l20.sql import execute_sqlite, extract_sql, normalize_result_rows, normalize_sql
 
 
 DEFAULT_ARCHITECTURES = ("rich_context", "decompose", "query_plan", "skeleton")
+SQL_STRING_LITERAL_RE = re.compile(r"'((?:''|[^'])*)'|\"((?:\"\"|[^\"])*)\"")
+SQL_NUMBER_LITERAL_RE = re.compile(r"(?<![A-Za-z_])[-+]?\d+(?:\.\d+)?(?![A-Za-z_])")
 
 
 def _result_signature(rows: list[tuple[Any, ...]]) -> str:
@@ -152,6 +155,9 @@ def architecture_priority(candidate: dict[str, Any]) -> int:
         "query_plan": 2,
         "skeleton": 1,
         "execution_first": 5,
+        "evidence_first": 5,
+        "value_grounded": 5,
+        "join_path": 4,
         "schema_aware": 0,
         "direct": 0,
     }
@@ -209,6 +215,191 @@ def value_hint_overlap(candidate: dict[str, Any], row: dict[str, Any]) -> int:
             if len(text) >= 2 and text in prediction:
                 matches += 1
     return matches
+
+
+def grounding_text(row: dict[str, Any]) -> str:
+    parts = [str(row.get("question") or ""), str(row.get("evidence") or "")]
+    hints = row.get("value_hints") or {}
+    for values in hints.values():
+        parts.extend(str(value) for value in values or [])
+    return " ".join(parts).lower()
+
+
+def sql_string_literals(sql: str) -> list[str]:
+    literals = []
+    for single, double in SQL_STRING_LITERAL_RE.findall(sql):
+        literal = single if single else double
+        literal = literal.replace("''", "'").replace('""', '"').strip().lower()
+        if len(literal) >= 2:
+            literals.append(literal)
+    return literals
+
+
+def sql_number_literals(sql: str) -> list[str]:
+    numbers = []
+    for match in SQL_NUMBER_LITERAL_RE.findall(sql):
+        normalized = match.lstrip("+")
+        try:
+            value = float(normalized)
+        except ValueError:
+            continue
+        if value in {0.0, 1.0}:
+            continue
+        numbers.append(normalized.lower())
+    return numbers
+
+
+def grounded_literal_stats(candidate: dict[str, Any], row: dict[str, Any]) -> tuple[int, int]:
+    sql = candidate.get("prediction") or ""
+    ground = grounding_text(row)
+    grounded = 0
+    ungrounded = 0
+    for literal in sql_string_literals(sql):
+        if literal in ground:
+            grounded += 1
+        else:
+            ungrounded += 1
+    for number in sql_number_literals(sql):
+        if number in ground:
+            grounded += 1
+        else:
+            ungrounded += 1
+    return grounded, ungrounded
+
+
+def word_present(text: str, token: str) -> bool:
+    return bool(re.search(rf"\b{re.escape(token.lower())}\b", text.lower()))
+
+
+def linked_schema_score(candidate: dict[str, Any], row: dict[str, Any]) -> tuple[int, int]:
+    sql = candidate.get("normalized_prediction") or normalize_sql(candidate.get("prediction", ""))
+    links = row.get("schema_links") or {}
+    linked_tables = [str(table).lower() for table in links.get("tables") or []]
+    linked_columns = [
+        str(column).split(".")[-1].lower()
+        for column in links.get("columns") or []
+        if str(column).strip()
+    ]
+    table_score = sum(int(word_present(sql, table)) for table in linked_tables)
+    column_score = sum(int(word_present(sql, column)) for column in linked_columns)
+    return table_score, column_score
+
+
+def unlinked_table_count(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    links = row.get("schema_links") or {}
+    linked_tables = {str(table).lower() for table in links.get("tables") or []}
+    if not linked_tables:
+        return 0
+    table_names, _, _ = schema_inventory(row)
+    sql = candidate.get("normalized_prediction") or normalize_sql(candidate.get("prediction", ""))
+    used_tables = {table for table in table_names if word_present(sql, table)}
+    return len(used_tables - linked_tables)
+
+
+def bird_operator_score(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    text = f"{row.get('question') or ''} {row.get('evidence') or ''}".lower()
+    sql = (candidate.get("normalized_prediction") or "").lower()
+    score = question_operator_score(candidate, row)
+
+    if any(term in text for term in ("ratio", "percentage", "percent", "proportion", "rate")):
+        score += int("/" in sql or "cast(" in sql or "*100" in sql or "* 100" in sql)
+    if any(term in text for term in ("not ", "without", "except", "no ")) and not any(
+        term in text for term in ("not null",)
+    ):
+        score += int(
+            " not " in f" {sql} "
+            or "!=" in sql
+            or "<>" in sql
+            or " except " in f" {sql} "
+        )
+    if "between" in text:
+        score += int(" between " in f" {sql} " or (">=" in sql and "<=" in sql))
+    if any(term in text for term in ("before", "after", "earlier", "later", "older", "newer")):
+        score += int(any(op in sql for op in (">", "<", ">=", "<=")))
+    if any(term in text for term in ("top ", "first ", "last ", "rank")):
+        score += int(" order by " in f" {sql} " and " limit " in f" {sql} ")
+    return score
+
+
+def result_shape_score(candidate: dict[str, Any], row: dict[str, Any]) -> int:
+    text = f"{row.get('question') or ''} {row.get('evidence') or ''}".lower()
+    row_count = candidate.get("result_row_count")
+    if row_count is None:
+        return 0
+    singular_terms = (
+        "how many",
+        "number of",
+        "count of",
+        "average",
+        "mean",
+        "total",
+        "sum of",
+        "ratio",
+        "percentage",
+        "maximum",
+        "minimum",
+        "highest",
+        "lowest",
+        "largest",
+        "smallest",
+    )
+    list_terms = ("which", "what are", "list", "show all", "names of")
+    if any(term in text for term in singular_terms):
+        return int(int(row_count) == 1)
+    if any(term in text for term in list_terms):
+        return int(int(row_count) > 0)
+    return 0
+
+
+def select_candidate_bird_grounded(
+    candidates: list[dict[str, Any]],
+    row: dict[str, Any],
+) -> dict[str, Any]:
+    result_counts, sql_counts = candidate_counts(candidates)
+
+    def score(candidate: dict[str, Any]) -> tuple[int, int, int, int, int, int, int, int, int, int]:
+        violation_count = schema_violation_count(candidate, row)
+        executable_score = 1 if candidate.get("executable") is True else 0
+        schema_clean_score = 1 if violation_count == 0 else 0
+        grounded_literals, ungrounded_literals = grounded_literal_stats(candidate, row)
+        linked_tables, linked_columns = linked_schema_score(candidate, row)
+        linked_score = linked_tables * 2 + linked_columns
+        extra_tables = unlinked_table_count(candidate, row)
+        operator_score = bird_operator_score(candidate, row)
+        non_degenerate_score = 1 if candidate.get("result_degenerate") is False else 0
+        shape_score = result_shape_score(candidate, row)
+        result_score = result_counts.get(candidate.get("result_signature", ""), 0)
+        sql_score = sql_counts.get(candidate.get("normalized_prediction", ""), 0)
+        priority_score = architecture_priority(candidate)
+        weighted = (
+            10_000 * executable_score
+            + 2_200 * non_degenerate_score
+            + 1_800 * result_score
+            + 700 * sql_score
+            + 500 * schema_clean_score
+            - 100 * violation_count
+            + 120 * grounded_literals
+            - 160 * ungrounded_literals
+            + 80 * operator_score
+            + 50 * linked_score
+            - 60 * extra_tables
+            + 40 * shape_score
+            + 10 * priority_score
+        )
+        return (
+            weighted,
+            executable_score,
+            schema_clean_score,
+            -ungrounded_literals,
+            operator_score,
+            linked_score,
+            result_score,
+            sql_score,
+            non_degenerate_score,
+            priority_score,
+        )
+
+    return max(candidates, key=score)
 
 
 def question_operator_score(candidate: dict[str, Any], row: dict[str, Any]) -> int:
@@ -274,6 +465,10 @@ def select_candidate_by_strategy(
         if row is None:
             raise ValueError("execution_guided_rerank requires the source row.")
         return select_candidate_execution_guided(candidates, row)
+    if strategy == "bird_grounded_rerank":
+        if row is None:
+            raise ValueError("bird_grounded_rerank requires the source row.")
+        return select_candidate_bird_grounded(candidates, row)
     raise ValueError(f"Unknown selection strategy: {strategy}")
 
 
@@ -301,7 +496,12 @@ def main() -> None:
     parser.add_argument("--top-p", type=float, default=0.95)
     parser.add_argument(
         "--selection-strategy",
-        choices=("execution_consistency", "value_aware_voting", "execution_guided_rerank"),
+        choices=(
+            "execution_consistency",
+            "value_aware_voting",
+            "execution_guided_rerank",
+            "bird_grounded_rerank",
+        ),
         default="execution_consistency",
     )
     parser.add_argument("--max-examples", type=int, default=None)
