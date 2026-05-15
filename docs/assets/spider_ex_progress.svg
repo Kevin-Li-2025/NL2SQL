@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320" role="img" aria-labelledby="title desc">
+  <title id="title">Spider dev execution accuracy progression</title>
+  <desc id="desc">Bar chart showing Spider dev local execution accuracy improving from Direct to Rich-context to MCR to VAV.</desc>
+  <rect width="760" height="320" fill="#ffffff"/>
+  <text x="32" y="42" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">Spider dev EX progression</text>
+  <text x="32" y="68" font-family="Inter, Arial, sans-serif" font-size="13" fill="#4b5563">Local execution accuracy unless noted in README; VAV n=4 also reaches 82.20% official EX.</text>
+  <line x1="120" y1="250" x2="708" y2="250" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="120" y1="104" x2="120" y2="250" stroke="#d1d5db" stroke-width="1"/>
+  <text x="54" y="254" font-family="Inter, Arial, sans-serif" font-size="12" fill="#6b7280">70%</text>
+  <text x="54" y="132" font-family="Inter, Arial, sans-serif" font-size="12" fill="#6b7280">85%</text>
+  <line x1="120" y1="128" x2="708" y2="128" stroke="#eef2f7" stroke-width="1"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="150" y="157" width="92" height="93" rx="4" fill="#2563eb"/>
+    <text x="196" y="147" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">75.73%</text>
+    <text x="196" y="276" font-size="13" text-anchor="middle" fill="#374151">Direct</text>
+    <rect x="290" y="133" width="92" height="117" rx="4" fill="#0891b2"/>
+    <text x="336" y="123" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">78.72%</text>
+    <text x="336" y="276" font-size="13" text-anchor="middle" fill="#374151">Rich</text>
+    <rect x="430" y="120" width="92" height="130" rx="4" fill="#059669"/>
+    <text x="476" y="110" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">80.37%</text>
+    <text x="476" y="276" font-size="13" text-anchor="middle" fill="#374151">MCR n8</text>
+    <rect x="570" y="102" width="92" height="148" rx="4" fill="#dc2626"/>
+    <text x="616" y="92" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">82.59%</text>
+    <text x="616" y="276" font-size="13" text-anchor="middle" fill="#374151">VAV n4</text>
+  </g>
+</svg>

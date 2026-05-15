@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320" role="img" aria-labelledby="title desc">
+  <title id="title">BIRD Mini-Dev retrospective union cost curve</title>
+  <desc id="desc">Line chart showing BIRD Mini-Dev execution accuracy over candidate budgets for the seven-pool VAV union.</desc>
+  <rect width="760" height="320" fill="#ffffff"/>
+  <text x="32" y="42" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">BIRD union cost curve</text>
+  <text x="32" y="68" font-family="Inter, Arial, sans-serif" font-size="13" fill="#4b5563">Seven-pool retrospective value-aware voting. Best point: n=80 at 48.40% EX.</text>
+  <g stroke="#e5e7eb" stroke-width="1">
+    <line x1="92" y1="250" x2="708" y2="250"/>
+    <line x1="92" y1="206" x2="708" y2="206"/>
+    <line x1="92" y1="162" x2="708" y2="162"/>
+    <line x1="92" y1="118" x2="708" y2="118"/>
+  </g>
+  <line x1="92" y1="86" x2="92" y2="250" stroke="#d1d5db"/>
+  <line x1="92" y1="250" x2="708" y2="250" stroke="#d1d5db"/>
+  <g font-family="Inter, Arial, sans-serif" font-size="12" fill="#6b7280">
+    <text x="48" y="254">46.0%</text>
+    <text x="48" y="210">47.0%</text>
+    <text x="48" y="166">48.0%</text>
+    <text x="48" y="122">49.0%</text>
+    <text x="92" y="276" text-anchor="middle">20</text>
+    <text x="194" y="276" text-anchor="middle">40</text>
+    <text x="296" y="276" text-anchor="middle">60</text>
+    <text x="398" y="276" text-anchor="middle">80</text>
+    <text x="500" y="276" text-anchor="middle">100</text>
+    <text x="602" y="276" text-anchor="middle">120</text>
+    <text x="704" y="276" text-anchor="middle">140</text>
+    <text x="398" y="302" text-anchor="middle">candidate budget</text>
+  </g>
+  <polyline points="92,232 194,224 296,154 398,145 500,154 602,180 704,162" fill="none" stroke="#dc2626" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#dc2626" stroke="#ffffff" stroke-width="2">
+    <circle cx="92" cy="232" r="6"/>
+    <circle cx="194" cy="224" r="6"/>
+    <circle cx="296" cy="154" r="6"/>
+    <circle cx="398" cy="145" r="7"/>
+    <circle cx="500" cy="154" r="6"/>
+    <circle cx="602" cy="180" r="6"/>
+    <circle cx="704" cy="162" r="6"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#111827">
+    <text x="92" y="220" text-anchor="middle">46.4</text>
+    <text x="194" y="212" text-anchor="middle">46.6</text>
+    <text x="296" y="142" text-anchor="middle">48.2</text>
+    <text x="398" y="132" text-anchor="middle">48.4</text>
+    <text x="500" y="142" text-anchor="middle">48.2</text>
+    <text x="602" y="168" text-anchor="middle">47.6</text>
+    <text x="704" y="150" text-anchor="middle">48.0</text>
+  </g>
+</svg>

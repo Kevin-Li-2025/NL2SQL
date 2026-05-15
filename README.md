@@ -7,8 +7,19 @@
 ![BIRD union EX](https://img.shields.io/badge/BIRD_union_EX-48.40%25-yellowgreen)
 ![L20 dense MFU](https://img.shields.io/badge/L20_dense_MFU-73.22%25-brightgreen)
 
-Single-GPU natural-language-to-SQL fine-tuning and inference experiments using
+Single-GPU natural-language-to-SQL fine-tuning and inference-time search using
 `Qwen2.5-Coder-7B-Instruct`, Spider supervision, and Spider/BIRD evaluation.
+
+## Core Contribution
+
+This repo shows that a Spider-trained 7B model can be pushed far beyond a direct
+fine-tuning baseline through schema-rich prompting and inference-time candidate
+selection on one NVIDIA L20, reaching `82.20%` official Spider dev EX and `47.80%`
+BIRD Mini-Dev EX without an additional pretraining phase.
+
+The main contribution is not a new foundation model. It is a reproducible research stack
+for measuring how much execution-guided search, value-aware voting, and candidate-pool
+selection can recover from the weaknesses of a small open model in text-to-SQL.
 
 ## Status
 
@@ -31,19 +42,24 @@ test-time candidate selection experiments, not public leaderboard submissions.
 - Negative final ablations: candidate repair, temperature `0.92`, repeated
   temperature `0.9` pools, and value-grounded prompts did not beat the best fresh
   BIRD run, although several helped retrospective union selection.
+- Full write-up: [docs/technical_report.md](docs/technical_report.md).
 
 ## Contents
 
+- [Core Contribution](#core-contribution)
 - [What This Repo Contains](#what-this-repo-contains)
+- [Why This Matters](#why-this-matters)
 - [System Overview](#system-overview)
 - [Metrics](#metrics)
 - [Headline Results](#headline-results)
+- [Result Figures](#result-figures)
 - [Spider Dev Results](#spider-dev-results)
 - [BIRD Mini-Dev Results](#bird-mini-dev-results)
 - [BIRD Union Cost Curves](#bird-union-cost-curves)
 - [Training Efficiency](#training-efficiency)
 - [Reproduce](#reproduce)
 - [Repository Map](#repository-map)
+- [Limitations](#limitations)
 - [Result Interpretation](#result-interpretation)
 - [References](#references)
 
@@ -61,6 +77,21 @@ This repository is a compact research-engineering workspace for:
 The project is intentionally scoped to one NVIDIA L20. It is useful for measuring how
 far careful prompting, schema hints, value-aware voting, and candidate-pool selection can
 move a Spider-trained 7B model without a larger pretraining phase.
+
+## Why This Matters
+
+Text-to-SQL systems often improve by scaling model size, proprietary inference, or
+benchmark-specific training data. This project isolates a more accessible question:
+how far can a resource-constrained open stack go if the training data is fixed and the
+main lever is inference-time reasoning?
+
+That framing makes the result useful for:
+
+- single-GPU engineering, where full pretraining is not realistic;
+- studying out-of-domain transfer from Spider to BIRD;
+- comparing candidate selection strategies under the same base model and adapter;
+- building verifier/reranker experiments from saved candidate pools instead of rerunning
+  expensive generation every time.
 
 ## System Overview
 
@@ -81,6 +112,9 @@ flowchart LR
 - `EM` is strict local normalized exact match unless the column says `Official EM`.
 - Spider official `Exact Match` is the upstream parsed structure-level metric and should
   not be compared directly with local normalized EM.
+- For BIRD, execution accuracy is the meaningful target metric in this repo. Exact match
+  is reported for transparency, but equivalent SQL queries can differ heavily in
+  structure, especially in cross-domain transfer.
 - `Err` is execution-error rate. `Hall` is schema hallucination rate.
 - BIRD Mini-Dev uses 500 examples. Spider dev uses 1,034 examples.
 - BIRD results are out-of-domain transfer from Spider-trained adapters and are not BIRD
@@ -96,6 +130,14 @@ flowchart LR
 | BIRD Mini-Dev | VAV n=20, temp 0.9 | 20 | `47.80%` EX | [results](evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n20_t09/results.json) |
 | BIRD Mini-Dev | Seven-pool VAV union n=80 | 80 | `48.40%` EX | [summary](evals/sota/rich_context_spider_qwen25_coder_7b_l20_mfu/bird_mini_dev_vav_n140_union_t075_t10_t09_t085_t092_t09b_t09c_cost_curve_vav/summary.json) |
 | Training | schema-aware Spider LoRA | - | `73.22%` dense MFU | [perf](outputs/schema_aware_spider_qwen25_coder_7b_l20_mfu/perf.summary.json) |
+
+## Result Figures
+
+![Spider dev execution progression](docs/assets/spider_ex_progress.svg)
+
+![BIRD Mini-Dev execution progression](docs/assets/bird_ex_progress.svg)
+
+![BIRD union cost curve](docs/assets/bird_union_cost_curve.svg)
 
 ## Spider Dev Results
 
@@ -208,10 +250,25 @@ The eight-pool curve ties the seven-pool best but does not improve it.
 
 ## Reproduce
 
+### Minimal No-GPU Check
+
+This verifies the package and saved-result tooling without downloading a model or using
+a GPU:
+
+```bash
+python3 -m pytest tests/
+```
+
+Expected result for the current snapshot:
+
+```text
+25 passed
+```
+
 ### Install
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -U pip
 python -m pip install -e ".[train]"
@@ -221,6 +278,22 @@ python -m pip install -e ".[train]"
 
 Spider and BIRD source data are expected under local dataset directories. The prepared
 JSONL files used by the saved results live under `data/processed/`.
+
+Expected raw-data layout:
+
+```text
+data/raw/
+  spider/
+    database/
+    train_spider.json
+    train_others.json
+    dev.json
+  bird_mini_dev/
+    minidev/
+      MINIDEV/
+        dev_databases/
+        dev.json
+```
 
 ```bash
 python -m nl2sql_l20.prepare spider \
@@ -273,6 +346,21 @@ when a local checkout of the official evaluator is available.
 | `outputs/` | LoRA adapter outputs and performance summaries |
 | `docs/` | Deeper experiment notes and architecture documentation |
 | `tests/` | Unit tests for prompt selection, pipeline behavior, repair, and cost curves |
+
+## Limitations
+
+- BIRD Mini-Dev EM is low because this is Spider-supervised out-of-domain transfer and
+  strict string matching undercounts semantically equivalent SQL. BIRD EX is the metric
+  to read first.
+- The `48.40%` BIRD union result is retrospective over saved candidate pools. It is
+  useful as verifier/reranker signal, but it is not a fresh single-run generation result.
+- These are local dev and Mini-Dev experiments, not official Spider or BIRD leaderboard
+  submissions.
+- Candidate repair was a negative ablation for BIRD VAV20 despite reducing some error
+  and hallucination rates.
+- The repo intentionally avoids further pretraining in this snapshot, so it should not be
+  compared directly with systems that use larger models, proprietary inference, or
+  benchmark-specific pretraining.
 
 ## Result Interpretation
 
